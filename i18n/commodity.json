@@ -1,0 +1,298 @@
+{
+  "LEAFY_GREENS": {
+    "en": "Leafy greens",
+    "fr": "Légumes verts à feuilles"
+  },
+  "TOMATOES": {
+    "en": "Tomatoes",
+    "fr": "Tomates"
+  },
+  "MELONS": {
+    "en": "Melons",
+    "fr": "Melons"
+  },
+  "BERRIES": {
+    "en": "Berries",
+    "fr": "Baies"
+  },
+  "HERBS": {
+    "en": "Fresh herbs",
+    "fr": "Herbes fraîches"
+  },
+  "SPROUTS": {
+    "en": "Sprouts",
+    "fr": "Pousses"
+  },
+  "CUCUMBERS": {
+    "en": "Cucumbers",
+    "fr": "Concombres"
+  },
+  "PEPPERS": {
+    "en": "Peppers",
+    "fr": "Poivrons"
+  },
+  "ONIONS": {
+    "en": "Onions",
+    "fr": "Oignons"
+  },
+  "GARLIC": {
+    "en": "Garlic",
+    "fr": "Ail"
+  },
+  "ROOT_VEGETABLES": {
+    "en": "Root vegetables",
+    "fr": "Légumes-racines"
+  },
+  "CRUCIFEROUS": {
+    "en": "Cruciferous vegetables",
+    "fr": "Légumes crucifères"
+  },
+  "STONE_FRUITS": {
+    "en": "Stone fruits",
+    "fr": "Fruits à noyau"
+  },
+  "CITRUS_FRUITS": {
+    "en": "Citrus fruits",
+    "fr": "Agrumes"
+  },
+  "APPLES": {
+    "en": "Apples",
+    "fr": "Pommes"
+  },
+  "PEARS": {
+    "en": "Pears",
+    "fr": "Poires"
+  },
+  "GRAPES": {
+    "en": "Grapes",
+    "fr": "Raisins"
+  },
+  "TROPICAL_FRUITS": {
+    "en": "Tropical fruits",
+    "fr": "Fruits tropicaux"
+  },
+  "BEEF": {
+    "en": "Beef",
+    "fr": "Bœuf"
+  },
+  "PORK": {
+    "en": "Pork",
+    "fr": "Porc"
+  },
+  "POULTRY": {
+    "en": "Poultry",
+    "fr": "Volaille"
+  },
+  "LAMB": {
+    "en": "Lamb",
+    "fr": "Agneau"
+  },
+  "GOAT": {
+    "en": "Goat meat",
+    "fr": "Viande de chèvre"
+  },
+  "FISH": {
+    "en": "Fish",
+    "fr": "Poisson"
+  },
+  "SHELLFISH": {
+    "en": "Shellfish",
+    "fr": "Coquillages"
+  },
+  "CRUSTACEANS": {
+    "en": "Crustaceans",
+    "fr": "Crustacés"
+  },
+  "MOLLUSKS": {
+    "en": "Mollusks",
+    "fr": "Mollusques"
+  },
+  "EGGS": {
+    "en": "Eggs",
+    "fr": "Œufs"
+  },
+  "MILK": {
+    "en": "Milk",
+    "fr": "Lait"
+  },
+  "CHEESE": {
+    "en": "Cheese",
+    "fr": "Fromage"
+  },
+  "YOGURT": {
+    "en": "Yogurt",
+    "fr": "Yaourt"
+  },
+  "BUTTER": {
+    "en": "Butter",
+    "fr": "Beurre"
+  },
+  "ICE_CREAM": {
+    "en": "Ice cream",
+    "fr": "Glace"
+  },
+  "GRAINS": {
+    "en": "Grains",
+    "fr": "Céréales"
+  },
+  "RICE": {
+    "en": "Rice",
+    "fr": "Riz"
+  },
+  "WHEAT": {
+    "en": "Wheat",
+    "fr": "Blé"
+  },
+  "CORN": {
+    "en": "Corn",
+    "fr": "Maïs"
+  },
+  "OATS": {
+    "en": "Oats",
+    "fr": "Avoine"
+  },
+  "BARLEY": {
+    "en": "Barley",
+    "fr": "Orge"
+  },
+  "QUINOA": {
+    "en": "Quinoa",
+    "fr": "Quinoa"
+  },
+  "LEGUMES": {
+    "en": "Legumes",
+    "fr": "Légumineuses"
+  },
+  "BEANS": {
+    "en": "Beans",
+    "fr": "Haricots"
+  },
+  "LENTILS": {
+    "en": "Lentils",
+    "fr": "Lentilles"
+  },
+  "PEAS": {
+    "en": "Peas",
+    "fr": "Poix"
+  },
+  "CHICKPEAS": {
+    "en": "Chickpeas",
+    "fr": "Pois chiches"
+  },
+  "SOYBEANS": {
+    "en": "Soybeans",
+    "fr": "Soja"
+  },
+  "NUTS": {
+    "en": "Nuts",
+    "fr": "Noix"
+  },
+  "ALMONDS": {
+    "en": "Almonds",
+    "fr": "Amandes"
+  },
+  "WALNUTS": {
+    "en": "Walnuts",
+    "fr": "Noix"
+  },
+  "CASHEWS": {
+    "en": "Cashews",
+    "fr": "Noix de cajou"
+  },
+  "PEANUTS": {
+    "en": "Peanuts",
+    "fr": "Cacahuètes"
+  },
+  "SEEDS": {
+    "en": "Seeds",
+    "fr": "Graines"
+  },
+  "SESAME": {
+    "en": "Sesame seeds",
+    "fr": "Graines de sésame"
+  },
+  "SUNFLOWER": {
+    "en": "Sunflower seeds",
+    "fr": "Graines de tournesol"
+  },
+  "PUMPKIN": {
+    "en": "Pumpkin seeds",
+    "fr": "Graines de citrouille"
+  },
+  "CHIA": {
+    "en": "Chia seeds",
+    "fr": "Graines de chia"
+  },
+  "OILS": {
+    "en": "Vegetable oils",
+    "fr": "Huiles végétales"
+  },
+  "OLIVE_OIL": {
+    "en": "Olive oil",
+    "fr": "Huile d'olive"
+  },
+  "CANOLA_OIL": {
+    "en": "Canola oil",
+    "fr": "Huile de canola"
+  },
+  "COCONUT_OIL": {
+    "en": "Coconut oil",
+    "fr": "Huile de coco"
+  },
+  "PALM_OIL": {
+    "en": "Palm oil",
+    "fr": "Huile de palme"
+  },
+  "SUGAR": {
+    "en": "Sugar",
+    "fr": "Sucre"
+  },
+  "HONEY": {
+    "en": "Honey",
+    "fr": "Miel"
+  },
+  "MAPLE_SYRUP": {
+    "en": "Maple syrup",
+    "fr": "Sirop d'érable"
+  },
+  "COFFEE": {
+    "en": "Coffee",
+    "fr": "Café"
+  },
+  "TEA": {
+    "en": "Tea",
+    "fr": "Thé"
+  },
+  "COCOA": {
+    "en": "Cocoa",
+    "fr": "Cacao"
+  },
+  "SPICES": {
+    "en": "Spices",
+    "fr": "Épices"
+  },
+  "PROCESSED_MEAT": {
+    "en": "Processed meat",
+    "fr": "Viande transformée"
+  },
+  "CANNED_FOODS": {
+    "en": "Canned foods",
+    "fr": "Aliments en conserve"
+  },
+  "FROZEN_FOODS": {
+    "en": "Frozen foods",
+    "fr": "Aliments congelés"
+  },
+  "READY_MEALS": {
+    "en": "Ready-to-eat meals",
+    "fr": "Repas prêts à consommer"
+  },
+  "BABY_FOOD": {
+    "en": "Baby food",
+    "fr": "Aliments pour bébés"
+  },
+  "PET_FOOD": {
+    "en": "Pet food",
+    "fr": "Aliments pour animaux"
+  }
+}

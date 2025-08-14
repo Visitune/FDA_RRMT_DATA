@@ -1,0 +1,162 @@
+{
+  "SALMONELLA": {
+    "en": "Salmonella spp.",
+    "fr": "Salmonella spp."
+  },
+  "ECOLI_O157": {
+    "en": "E. coli O157:H7",
+    "fr": "E. coli O157:H7"
+  },
+  "ECOLI_NON_O157": {
+    "en": "E. coli non-O157 STEC",
+    "fr": "E. coli STEC non-O157"
+  },
+  "LISTERIA": {
+    "en": "Listeria monocytogenes",
+    "fr": "Listeria monocytogenes"
+  },
+  "CAMPYLOBACTER": {
+    "en": "Campylobacter spp.",
+    "fr": "Campylobacter spp."
+  },
+  "STAPHYLOCOCCUS": {
+    "en": "Staphylococcus aureus",
+    "fr": "Staphylococcus aureus"
+  },
+  "CLOSTRIDIUM_BOTULINUM": {
+    "en": "Clostridium botulinum",
+    "fr": "Clostridium botulinum"
+  },
+  "CLOSTRIDIUM_PERFRINGENS": {
+    "en": "Clostridium perfringens",
+    "fr": "Clostridium perfringens"
+  },
+  "BACILLUS_CEREUS": {
+    "en": "Bacillus cereus",
+    "fr": "Bacillus cereus"
+  },
+  "SHIGELLA": {
+    "en": "Shigella spp.",
+    "fr": "Shigella spp."
+  },
+  "VIBRIO_VULNIFICUS": {
+    "en": "Vibrio vulnificus",
+    "fr": "Vibrio vulnificus"
+  },
+  "VIBRIO_PARAHAEMOLYTICUS": {
+    "en": "Vibrio parahaemolyticus",
+    "fr": "Vibrio parahaemolyticus"
+  },
+  "VIBRIO_CHOLERAE": {
+    "en": "Vibrio cholerae",
+    "fr": "Vibrio cholerae"
+  },
+  "NOROVIRUS": {
+    "en": "Norovirus",
+    "fr": "Norovirus"
+  },
+  "HEPATITIS_A": {
+    "en": "Hepatitis A virus",
+    "fr": "Virus de l'hépatite A"
+  },
+  "ROTAVIRUS": {
+    "en": "Rotavirus",
+    "fr": "Rotavirus"
+  },
+  "CRYPTOSPORIDIUM": {
+    "en": "Cryptosporidium spp.",
+    "fr": "Cryptosporidium spp."
+  },
+  "GIARDIA": {
+    "en": "Giardia lamblia",
+    "fr": "Giardia lamblia"
+  },
+  "CYCLOSPORA": {
+    "en": "Cyclospora cayetanensis",
+    "fr": "Cyclospora cayetanensis"
+  },
+  "AFLATOXIN": {
+    "en": "Aflatoxin",
+    "fr": "Aflatoxine"
+  },
+  "OCHRATOXIN": {
+    "en": "Ochratoxin",
+    "fr": "Ochratoxine"
+  },
+  "FUMONISIN": {
+    "en": "Fumonisin",
+    "fr": "Fumonisine"
+  },
+  "DEOXYNIVALENOL": {
+    "en": "Deoxynivalenol (DON)",
+    "fr": "Désoxynivalénol (DON)"
+  },
+  "ZEARALENONE": {
+    "en": "Zearalenone",
+    "fr": "Zéaralénone"
+  },
+  "PATULIN": {
+    "en": "Patulin",
+    "fr": "Patuline"
+  },
+  "CADMIUM": {
+    "en": "Cadmium",
+    "fr": "Cadmium"
+  },
+  "LEAD": {
+    "en": "Lead",
+    "fr": "Plomb"
+  },
+  "MERCURY": {
+    "en": "Mercury",
+    "fr": "Mercure"
+  },
+  "ARSENIC": {
+    "en": "Arsenic",
+    "fr": "Arsenic"
+  },
+  "PESTICIDES": {
+    "en": "Pesticide residues",
+    "fr": "Résidus de pesticides"
+  },
+  "DRUG_RESIDUES": {
+    "en": "Veterinary drug residues",
+    "fr": "Résidus de médicaments vétérinaires"
+  },
+  "ALLERGENS": {
+    "en": "Food allergens",
+    "fr": "Allergènes alimentaires"
+  },
+  "ADDITIVES": {
+    "en": "Food additives",
+    "fr": "Additifs alimentaires"
+  },
+  "TRANS_FATS": {
+    "en": "Trans fats",
+    "fr": "Gras trans"
+  },
+  "ACRYLAMIDE": {
+    "en": "Acrylamide",
+    "fr": "Acrylamide"
+  },
+  "BPA": {
+    "en": "Bisphenol A (BPA)",
+    "fr": "Bisphénol A (BPA)"
+  },
+  "MYCOTOXINS": {
+    "en": "Mycotoxins (general)",
+    "fr": "Mycotoxines (général)"
+  },
+  "PARASITES": {
+    "en": "Parasites",
+    "fr": "Parasites"
+  },
+  "CHEMICALS": {
+    "en": "Chemical contaminants",
+    "fr": "Contaminants chimiques"
+  },
+  "HEAVY_METALS": {
+    "en": "Heavy metals",
+    "fr": "Métaux lourds"
+  }
+}

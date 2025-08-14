@@ -1,0 +1,58 @@
+{
+  "FRESH_PRODUCE": {
+    "en": "Fresh Produce",
+    "fr": "Produits frais"
+  },
+  "SEAFOOD": {
+    "en": "Seafood",
+    "fr": "Fruits de mer"
+  },
+  "DAIRY": {
+    "en": "Dairy Products",
+    "fr": "Produits laitiers"
+  },
+  "MEAT": {
+    "en": "Meat and Poultry",
+    "fr": "Viande et volaille"
+  },
+  "EGGS": {
+    "en": "Eggs and Egg Products",
+    "fr": "Œufs et produits d'œufs"
+  },
+  "NUTS": {
+    "en": "Nuts and Seeds",
+    "fr": "Noix et graines"
+  },
+  "GRAINS": {
+    "en": "Grains and Grain Products",
+    "fr": "Céréales et produits céréaliers"
+  },
+  "SPICES": {
+    "en": "Spices and Seasonings",
+    "fr": "Épices et assaisonnements"
+  },
+  "BEVERAGES": {
+    "en": "Beverages",
+    "fr": "Boissons"
+  },
+  "PROCESSED": {
+    "en": "Processed Foods",
+    "fr": "Aliments transformés"
+  },
+  "READY_TO_EAT": {
+    "en": "Ready-to-Eat Foods",
+    "fr": "Aliments prêts à consommer"
+  },
+  "BABY_FOOD": {
+    "en": "Infant and Baby Foods",
+    "fr": "Aliments pour bébés et nourrissons"
+  },
+  "ANIMAL_FEED": {
+    "en": "Animal Feed and Pet Food",
+    "fr": "Aliments pour animaux et animaux de compagnie"
+  },
+  "DIETARY_SUPPLEMENTS": {
+    "en": "Dietary Supplements",
+    "fr": "Suppléments alimentaires"
+  }
+}
