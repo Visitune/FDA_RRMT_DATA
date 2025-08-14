@@ -209,7 +209,7 @@ class RRMFTApp {
 
   async getChecksums() {
     if (!this.state.data.checksums) {
-      const data = await this.fetchAndVerify('checksums.json');
+      const data = await this.fetchAndVerify('metadata/checksums.json');
       this.state.data.checksums = data.json;
     }
     return this.state.data.checksums;
@@ -222,8 +222,8 @@ class RRMFTApp {
 
       // Load main data files
       const [twoA, oneA] = await Promise.all([
-        this.fetchAndVerify('commodities_table_2A.json'),
-        this.fetchAndVerify('ftl_table_1A.json')
+        this.fetchAndVerify('en/commodities_table_2A.json'),
+        this.fetchAndVerify('en/ftl_table_1A.json')
       ]);
 
       this.state.data.twoA = twoA.json;
@@ -231,7 +231,7 @@ class RRMFTApp {
 
       // Load i18n files
       const i18nFiles = ['hazard', 'commodity', 'category'];
-      const i18nPromises = i18nFiles.map(file => 
+      const i18nPromises = i18nFiles.map(file =>
         this.fetchAndVerify(`i18n/${file}.json`)
       );
 
@@ -344,7 +344,7 @@ class RRMFTApp {
 
   async loadPairs(code) {
     try {
-      const pairsPath = `pairs_table_2B/${code}.json`;
+      const pairsPath = `en/pairs_table_2B/${code}.json`;
       const { json: pairs } = await this.fetchAndVerify(pairsPath);
       
       this.state.current.pairs = pairs;
