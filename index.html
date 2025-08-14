@@ -4,9 +4,10 @@
   <meta charset="utf-8" />
   <title>RRM-FT Assistant — FSMA 204 (FR/EN)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- ZIP local pour projets .RRM -->
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
   <style>
-    :root{--bg:#0b0c10;--panel:#111523;--panel-2:#0e1220;--text:#eaf2f8;--muted:#8ea0b3;--line:#26324a;--ok:#38d9a9;--warn:#f59f00;--err:#fa5252}
+    :root{--bg:#0b0c10;--panel:#111523;--panel2:#0e1220;--text:#eaf2f8;--muted:#8ea0b3;--line:#26324a;--ok:#38d9a9;--warn:#f59f00;--err:#fa5252}
     *{box-sizing:border-box} html,body{margin:0;background:#0b0c10;color:var(--text);font:14px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial}
     .wrap{max-width:1120px;margin:32px auto;padding:0 16px}
     header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
@@ -15,7 +16,7 @@
     .card{background:var(--panel);border-radius:16px;padding:16px;box-shadow:0 14px 40px rgba(0,0,0,.25);margin:14px 0;border:1px solid #12192c}
     .row{display:flex;gap:12px;flex-wrap:wrap}.col{flex:1 1 320px}
     label{display:block;margin-bottom:8px;font-weight:600}
-    input,select,button{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--panel-2);color:var(--text)}
+    input,select,button{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}
     button{cursor:pointer;background:#1a2140;border:1px solid #233055}
     .chip{display:inline-block;padding:.2rem .6rem;border-radius:999px;font-weight:700;border:1px solid transparent}
     .ok{background:rgba(56,217,169,.14);color:#7ef0c9;border-color:rgba(56,217,169,.35)}
@@ -52,7 +53,7 @@
         <small class="muted">Charge 2A/1A/2B depuis ce dépôt. Si <code>manifest.json</code> + <code>metadata/checksums.json</code> sont présents, vérifie l’intégrité (SHA-256).</small>
       </div>
       <div class="col">
-        <label>Recherche / sélection denrée (liste = fichiers 2B réellement présents)</label>
+        <label>Recherche / sélection denrée (liste = fichiers 2B présents dans <em>manifest.json</em>)</label>
         <div style="display:flex;gap:8px">
           <input id="q" placeholder="Rechercher (FR/EN)"/>
           <select id="commoditySelect"></select>
@@ -108,165 +109,164 @@
 </div>
 
 <script>
+/* ====== utilitaires ====== */
 const $ = s => document.querySelector(s);
 const $tb = s => document.querySelector(s).tBodies[0];
-
 const state = {
-  manifest:null, checksums:null, cache:new Map(),
+  manifest:null, checksums:null,
   twoA:null, oneA:null, i18n:{category:{}, commodity:{}, hazard:{}},
   lang:"fr", log:[],
-  // itemsFromPairs = [{category, commodity, path, onFTL?, agg?}]
-  itemsFromPairs:[],
-  current:{path:null, category:null, commodity:null, pairs:[]},
-  paths:{
-    manifest:["manifest.json"],
-    checks:["metadata/checksums.json","checksums.json"],
-    twoA:["en/commodities_table_2A.json","commodities_table_2A.json"],
-    oneA:["en/ftl_table_1A.json","ftl_table_1A.json"],
-    i18nFR:["i18n/fr_map.json"]
-  }
+  itemsFromPairs:[], // {path, category, commodity, onFTL, agg}
+  current:{path:null, category:null, commodity:null, pairs:[]}
 };
 
 const toHex = ab => [...new Uint8Array(ab)].map(b=>b.toString(16).padStart(2,"0")).join("");
 async function sha256(ab){ return toHex(await crypto.subtle.digest("SHA-256", ab)); }
-async function fetchAB(path){ const r=await fetch(path + (path.includes("?")?"":"?v="+Date.now()),{cache:"no-store"}); if(!r.ok) throw new Error(`${path} -> HTTP ${r.status}`); return await r.arrayBuffer(); }
-async function fetchJSON(path){ const ab=await fetchAB(path); let json=null; try{ json=JSON.parse(new TextDecoder().decode(ab)); }catch{} return {json,ab,path}; }
-async function fetchFirst(paths){ let err; for(const p of paths){ try{ return await fetchJSON(p); }catch(e){ err=e; } } throw err||new Error("Aucun chemin: "+paths.join(", ")); }
-function cleanLabel(s){ return String(s||"").replace(/\u00A0/g," ").replace(/\s+/g," ").trim(); }
+function clean(s){ return String(s||"").replace(/\u00A0/g," ").replace(/\s+/g," ").trim(); }
 function log(msg){ const t=new Date().toISOString(); const d=$("#log"); d.textContent=(d.textContent?d.textContent+"\n":"")+`[${t}] ${msg}`; state.log.push({t,msg}); }
+async function fetchAB(path){ const r=await fetch(path,{cache:"no-store"}); if(!r.ok) throw new Error(`${path} -> HTTP ${r.status}`); return await r.arrayBuffer(); }
+async function fetchJSON(path){ const ab=await fetchAB(path); let json=null; try{ json=JSON.parse(new TextDecoder().decode(ab)); }catch{} return {json,ab,path}; }
 
-function normalizeTwoA(data){
-  if(!data) return {commodities:[]};
-  if(Array.isArray(data)) return {commodities:data};
-  if(data.commodities) return data;
-  if(data.items) return {commodities:data.items};
-  if(data.data) return {commodities:data.data};
-  const vals=Object.values(data); if(Array.isArray(vals[0])) return {commodities:vals[0]}; return {commodities:[]};
-}
-function normalizeOneA(data){
-  if(!data) return {items:[]};
-  if(Array.isArray(data)) return {items:data};
-  if(data.items) return data;
-  if(data.commodities) return {items:data.commodities};
-  if(data.data) return {items:data.data};
-  const vals=Object.values(data); if(Array.isArray(vals[0])) return {items:vals[0]}; return {items:[]};
-}
-
+/* ====== intégrité via manifest/checksums (opportuniste) ====== */
 async function verifyIfPossible(path,ab){
-  const digest=await sha256(ab);
-  const m=state.manifest?.sources?.find(s=>s.path===path)?.sha256;
-  const c=state.checksums?.[path];
-  if(m && m!==digest) throw new Error(`SHA manifest mismatch: ${path}`);
-  if(c && c!==digest) throw new Error(`SHA checksums mismatch: ${path}`);
-  state.cache.set(path,{ab,sha256:digest});
+  const d=await sha256(ab);
+  const man = state.manifest?.sources?.find(s=>s.path===path)?.sha256;
+  const chk = state.checksums?.[path];
+  if(man && man!==d) throw new Error(`SHA mismatch (manifest) for ${path}`);
+  if(chk && chk!==d) throw new Error(`SHA mismatch (checksums) for ${path}`);
 }
 
-/* === Initialisation === */
+/* ====== normalisation formats 2A/1A ====== */
+function norm2A(x){
+  if(!x) return {commodities:[]};
+  if(Array.isArray(x)) return {commodities:x};
+  if(x.commodities) return x;
+  if(x.items) return {commodities:x.items};
+  if(x.data) return {commodities:x.data};
+  const v=Object.values(x); if(Array.isArray(v[0])) return {commodities:v[0]};
+  return {commodities:[]};
+}
+function norm1A(x){
+  if(!x) return {items:[]};
+  if(Array.isArray(x)) return {items:x};
+  if(x.items) return x;
+  if(x.commodities) return {items:x.commodities};
+  if(x.data) return {items:x.data};
+  const v=Object.values(x); if(Array.isArray(v[0])) return {items:v[0]};
+  return {items:[]};
+}
+
+/* ====== chargement principal (zéro 404) ====== */
 async function loadAll(){
   const badge=$("#statusBadge"); badge.textContent="loading…"; badge.className="chip warn";
 
-  try{ state.manifest=(await fetchFirst(state.paths.manifest)).json; }catch{ state.manifest=null; }
-  try{ state.checksums=(await fetchFirst(state.paths.checks)).json; }catch{ state.checksums=null; }
-
-  // 1) Charger 2A/1A (pour FTL/score — non bloquant)
+  // 1) manifest + checksums (source de vérité pour lister les 2B)
+  try{ state.manifest = (await fetchJSON("manifest.json")).json; }catch{ state.manifest=null; }
   try{
-    const twoA=await fetchFirst(state.paths.twoA); await verifyIfPossible(twoA.path,twoA.ab); state.twoA=normalizeTwoA(twoA.json);
-  }catch{ state.twoA={commodities:[]}; }
-  try{
-    const oneA=await fetchFirst(state.paths.oneA); await verifyIfPossible(oneA.path,oneA.ab); state.oneA=normalizeOneA(oneA.json);
-  }catch{ state.oneA={items:[]}; }
+    // checksums seulement si le fichier existe (évite 404)
+    if (state.manifest?.sources?.some(s=>s.path==="metadata/checksums.json"))
+      state.checksums = (await fetchJSON("metadata/checksums.json")).json;
+  }catch{ state.checksums=null; }
 
-  // 2) Construire la liste *réelle* à partir du manifest (aucun 404 possible)
-  const pairEntries=(state.manifest?.sources||[]).map(s=>s.path).filter(p=>/pairs_table_2B\//.test(p));
+  // 2) 2A / 1A si listés, sinon on essaie en/ puis racine tout en évitant 404 si absent du manifest
+  const path2A = state.manifest?.sources?.find(s=>/commodities_table_2A\.json$/.test(s.path))?.path;
+  const path1A = state.manifest?.sources?.find(s=>/ftl_table_1A\.json$/.test(s.path))?.path;
+  if (path2A){ const r=await fetchJSON(path2A); await verifyIfPossible(path2A,r.ab); state.twoA=norm2A(r.json); } else { state.twoA={commodities:[]}; }
+  if (path1A){ const r=await fetchJSON(path1A); await verifyIfPossible(path1A,r.ab); state.oneA=norm1A(r.json); } else { state.oneA={items:[]}; }
+
+  // 3) i18n FR seulement si présent dans manifest
+  const pathFR = state.manifest?.sources?.find(s=>/i18n\/fr_map\.json$/.test(s.path))?.path;
+  if (pathFR){ try{ const r=await fetchJSON(pathFR); state.i18n=r.json||state.i18n; }catch{} }
+
+  // 4) Construire la liste réelle à partir des chemins pairs_table_2B/ présents dans manifest
+  const pairPaths = (state.manifest?.sources||[])
+    .map(s=>s.path)
+    .filter(p=>/pairs_table_2B\//.test(p) && /\.json$/.test(p));
+
   state.itemsFromPairs=[];
-  for(const p of pairEntries){
+  for(const p of pairPaths){
     try{
-      const {json,ab,path}=await fetchJSON(p); await verifyIfPossible(path,ab);
+      const {json,ab}=await fetchJSON(p); await verifyIfPossible(p,ab);
       const about=json?.about||{};
-      const cat=about.category||about.Category||"";
-      const com=cleanLabel(about.commodity||about.Commodity||"");
+      const cat=clean(about.category||about.Category||"");
+      const com=clean(about.commodity||about.Commodity||"");
       if(!com) continue;
-      // Cherche FTL & score dans 2A si dispo
+      // FTL/score agrégé depuis 2A si possible (match sur commodity propre)
       let onFTL=false, agg="";
-      const r2A=(state.twoA?.commodities||[]).find(r=>cleanLabel(r.commodity??r.Commodity??"")===com);
-      if(r2A){ onFTL = !!(r2A.onFTL ?? r2A.on_ftl ?? r2A.ftl); agg = r2A.riskScoreCommodity ?? r2A.agg_score ?? r2A.aggScore ?? ""; }
-      state.itemsFromPairs.push({category:cat, commodity:com, path, onFTL, agg});
-    }catch(e){ /* ignore a pair path that fails */ }
+      const r2A=(state.twoA?.commodities||[]).find(r=>clean(r.commodity??r.Commodity??"")===com);
+      if(r2A){ onFTL=!!(r2A.onFTL??r2A.on_ftl??r2A.ftl); agg=r2A.riskScoreCommodity??r2A.agg_score??r2A.aggScore??""; }
+      state.itemsFromPairs.push({path:p, category:cat, commodity:com, onFTL, agg});
+    }catch(e){ /* ignore */ }
   }
 
-  // 3) i18n facultatif
-  try{ const fr=await fetchFirst(state.paths.i18nFR); if(fr.json && typeof fr.json==="object") state.i18n=fr.json; }catch{}
-
-  // 4) UI
-  const n2A=state.twoA?.commodities?.length||0;
-  const n1A=state.oneA?.items?.length||0;
-  const n2B=state.itemsFromPairs.length;
-  $("#counts").textContent=`${n1A} FTL • ${n2A} commodities • ${n2B} files 2B`;
-  badge.textContent="intégrité OK (si manifest/checksums présents)";
-  badge.className="chip ok";
+  // 5) UI
+  const n2B = state.itemsFromPairs.length;
+  const n2A = state.twoA?.commodities?.length || 0;
+  const n1A = state.oneA?.items?.length || 0;
+  $("#counts").textContent = `${n1A} FTL • ${n2A} commodities • ${n2B} files 2B`;
+  badge.textContent = "intégrité OK (si manifest/checksums présents)";
+  badge.className = "chip ok";
 
   populateFromPairs();
-  log("Données FDA chargées (liste basée sur les fichiers 2B présents).");
+  log("Données FDA chargées (liste basée sur manifest.json).");
 }
 
-/* === Remplit la liste *uniquement* avec les fichiers 2B existants === */
+/* ====== liste déroulante depuis itemsFromPairs ====== */
 function populateFromPairs(){
   const sel=$("#commoditySelect"); const q=($("#q").value||"").toLowerCase();
   const items=state.itemsFromPairs
-    .filter(r=>!q || [r.commodity,r.category].some(x=>String(x).toLowerCase().includes(q)))
-    .sort((a,b)=>String(a.commodity).localeCompare(String(b.commodity)));
+    .filter(r=>!q || [r.commodity,r.category].some(x=>x.toLowerCase().includes(q)))
+    .sort((a,b)=>a.commodity.localeCompare(b.commodity));
   sel.innerHTML="";
   for(const r of items){
     const o=document.createElement("option");
-    o.value=r.path; // CHEMIN EXACT du fichier 2B → aucun 404
-    o.textContent=`${r.commodity}${r.onFTL?" [FTL]":""} — ${r.category||"—"}`;
+    o.value=r.path; o.textContent=`${r.commodity}${r.onFTL?" [FTL]":""} — ${r.category||"—"}`;
     o.dataset.cat=r.category||""; o.dataset.com=r.commodity; o.dataset.agg=r.agg||""; o.dataset.ftl=r.onFTL?"1":"0";
     sel.appendChild(o);
   }
-  if(items.length){ sel.selectedIndex=0; onCommodityChange(); }
+  if(items.length){ sel.selectedIndex=0; onCommodityChange(); } else { renderPairs([]); $("#ftlBadge").className="chip hidden"; $("#aggScore").textContent=""; $("#catName").textContent=""; }
 }
 
-/* === Ouverture d’un fichier 2B (chemin exact depuis <option>.value) === */
+/* ====== chargement d’un fichier 2B SÉLECTIONNÉ (chemin exact) ====== */
 async function onCommodityChange(){
   const opt=$("#commoditySelect").selectedOptions[0]; if(!opt) return;
-  const path=opt.value; const category=opt.dataset.cat; const commodity=opt.dataset.com;
-  state.current.path=path; state.current.category=category; state.current.commodity=commodity;
-
+  const path=opt.value, category=opt.dataset.cat, commodity=opt.dataset.com;
   const {json,ab}=await fetchJSON(path); await verifyIfPossible(path,ab);
-  const data=json||{};
-  const pairs=Array.isArray(data)?data:(data.pairs||[]);
-  state.current.pairs=pairs.map(p=>({
-    hazard:p.hazard ?? p.Hazard ?? p.hazard_name ?? p.hazardName ?? "",
+  const pairs=Array.isArray(json)?json:(json?.pairs||[]);
+  const rows=pairs.map(p=>({
+    hazard: p.hazard ?? p.Hazard ?? p.hazard_name ?? p.hazardName ?? "",
     C1:+p.C1, C2:+p.C2, C3:+p.C3, C4:+p.C4, C5:+p.C5, C6:+p.C6, C7:+p.C7,
     riskScorePair:+(p.riskScorePair ?? p.pairRiskScore ?? p.risk ?? p.score)
   })).filter(p=>p.hazard);
 
-  const onFTL=opt.dataset.ftl==="1"; const agg=opt.dataset.agg;
+  const onFTL=opt.dataset.ftl==="1", agg=opt.dataset.agg;
   $("#ftlBadge").className=`chip ${onFTL?"ok":"hidden"}`; $("#ftlBadge").textContent=onFTL?"FTL":"";
   $("#aggScore").textContent=agg?`aggregated score: ${agg}`:"";
   $("#catName").textContent=`${category||"—"} • ${commodity}`;
 
-  renderPairs();
+  state.current={path,category,commodity,pairs:rows};
+  renderPairs(rows);
   log(`Ouverture denrée: ${category||"—"} — ${commodity}`);
 }
 
-function renderPairs(){
+/* ====== rendu du tableau ====== */
+function renderPairs(rows){
   const tb=$tb("#pairsTable"); tb.innerHTML="";
-  for(const p of state.current.pairs){
+  for(const r of rows){
     const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${p.hazard}</td>
-      <td>${p.C1}</td><td>${p.C2}</td><td>${p.C3}</td><td>${p.C4}</td><td>${p.C5}</td><td>${p.C6}</td><td>${p.C7}</td>
-      <td class="mono">${p.riskScorePair}</td>`;
+    tr.innerHTML=`<td>${r.hazard}</td>
+      <td>${r.C1}</td><td>${r.C2}</td><td>${r.C3}</td><td>${r.C4}</td><td>${r.C5}</td><td>${r.C6}</td><td>${r.C7}</td>
+      <td class="mono">${r.riskScorePair}</td>`;
     tb.appendChild(tr);
   }
 }
 
-/* === Projets .RRM === */
+/* ====== projets .RRM ====== */
 async function saveRRM(){
   if(!state.current.path){ alert("Choisis d’abord une denrée."); return; }
   const zip=new JSZip();
   const proj={schemaVersion:"rrmft-project-1.0",savedAt:new Date().toISOString(),uiLang:state.lang,
-    selection:{category:state.current.category,commodity:state.current.commodity,path:state.current.path},
+    selection:{path:state.current.path,category:state.current.category,commodity:state.current.commodity},
     results:state.current.pairs,notes:{name:$("#projName").value,ref:$("#projRef").value,notes:$("#projNotes").value},log:state.log};
   zip.file("project.json", JSON.stringify(proj,null,2));
   for(const f of $("#files").files){ zip.file("attachments/"+f.name, await f.arrayBuffer()); }
@@ -282,35 +282,36 @@ async function openRRM(ev){
   state.lang=proj.uiLang||"fr"; $("#lang").value=state.lang;
   $("#projName").value=proj?.notes?.name||""; $("#projRef").value=proj?.notes?.ref||""; $("#projNotes").value=proj?.notes?.notes||"";
   state.log=proj?.log||[];
-  // Re-sélectionne si le path existe encore
-  const sel=$("#commoditySelect");
-  for(const opt of sel.options){ if(opt.value===proj?.selection?.path){ sel.value=opt.value; await onCommodityChange(); break; } }
+  // si le chemin existe encore dans la liste
+  for (const opt of $("#commoditySelect").options){
+    if (opt.value === proj?.selection?.path){ $("#commoditySelect").value=opt.value; await onCommodityChange(); break; }
+  }
   log("Projet chargé (.RRM).");
 }
 
-/* === Export EN (CSV) === */
+/* ====== export EN (CSV) ====== */
 function exportEN(){
   const rows=[["Category","Commodity","Hazard","C1","C2","C3","C4","C5","C6","C7","PairRisk"]];
-  for(const p of state.current.pairs){ rows.push([state.current.category,state.current.commodity,p.hazard,p.C1,p.C2,p.C3,p.C4,p.C5,p.C6,p.C7,p.riskScorePair]); }
+  for(const p of (state.current.pairs||[])){ rows.push([state.current.category,state.current.commodity,p.hazard,p.C1,p.C2,p.C3,p.C4,p.C5,p.C6,p.C7,p.riskScorePair]); }
   const csv=rows.map(r=>r.map(x=>`"${String(x).replaceAll('"','""')}"`).join(",")).join("\n");
   const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
   a.download=`${(state.current.commodity||"export").toLowerCase().replace(/[^a-z0-9]+/g,"_")}_EN.csv`; a.click(); URL.revokeObjectURL(a.href);
 }
 
-/* === UI === */
-$("#lang").addEventListener("change", ()=>{ state.lang=$("#lang").value; renderPairs(); });
+/* ====== événements UI ====== */
+$("#lang").addEventListener("change", ()=>{ state.lang=$("#lang").value; /* labels plus tard */ });
 $("#q").addEventListener("input", ()=>populateFromPairs());
 $("#commoditySelect").addEventListener("change", onCommodityChange);
 $("#saveRRM").addEventListener("click", saveRRM);
 $("#openRRM").addEventListener("change", openRRM);
 $("#exportEN").addEventListener("click", exportEN);
 
-/* === GO === */
+/* ====== GO ====== */
 loadAll().catch(err=>{
   $("#statusBadge").className="chip bad";
   $("#statusBadge").textContent="erreur chargement";
   log("ERREUR: "+(err?.message||err));
-  alert("Erreur de chargement des données FDA.\n"+(err?.message||err));
+  alert("Erreur de chargement.\n"+(err?.message||err));
 });
 </script>
 </body>
