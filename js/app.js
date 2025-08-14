@@ -344,7 +344,21 @@ class RRMFTApp {
 
   async loadPairs(code) {
     try {
-      const pairsPath = `en/pairs_table_2B/${code}.json`;
+      // Get commodity data to construct correct filename
+      if (!this.state.data.twoA || !this.state.data.twoA.data) {
+        throw new Error('Commodities data not loaded');
+      }
+      
+      const commodityData = this.state.data.twoA.data.find(item => item.code === code);
+      if (!commodityData) {
+        throw new Error(`Commodity data not found for code: ${code}`);
+      }
+      
+      // Convert commodity name to filename format
+      const filename = this.commodityToFilename(commodityData.commodity);
+      const pairsPath = `en/pairs_table_2B/${filename}.json`;
+      
+      this.log(`Loading pairs from: ${pairsPath}`);
       const { json: pairs } = await this.fetchAndVerify(pairsPath);
       
       this.state.current.pairs = pairs;
@@ -357,6 +371,18 @@ class RRMFTApp {
       this.log(`Error loading pairs for ${code}: ${error.message}`, 'error');
       this.displayPairs({});
     }
+  }
+
+  commodityToFilename(commodityName) {
+    // Convert commodity name to filename format used in pairs_table_2B
+    // Based on actual file naming pattern: __commodity_name___.json
+    return '__' + commodityName
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '') // Remove special characters
+      .replace(/\s+/g, '_') // Replace spaces with underscores
+      .replace(/_+/g, '_') // Normalize multiple underscores
+      .replace(/^_+|_+$/g, '') // Trim leading/trailing underscores
+      + '___';
   }
 
   displayPairs(pairs) {
