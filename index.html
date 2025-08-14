@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <title>RRM-FT Assistant — FSMA 204 (FR/EN)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <!-- ZIP pour projets .RRM -->
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
   <style>
     :root{
@@ -12,7 +11,7 @@
       --accent:#38d9a9;--warn:#f59f00;--err:#fa5252;--line:#26324a
     }
     *{box-sizing:border-box}
-    html,body{margin:0;background:linear-gradient(180deg,#0b0c10,#0b0c10 240px,#0b0c10);color:var(--text);font:14px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    html,body{margin:0;background:#0b0c10;color:var(--text);font:14px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial}
     .wrap{max-width:1120px;margin:32px auto;padding:0 16px}
     header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
     h1{margin:0;font-size:22px;letter-spacing:.2px}
@@ -37,8 +36,7 @@
     th{background:#0e1426;position:sticky;top:0;z-index:1}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
     .hidden{display:none}
-    .mt8{margin-top:8px}.mt16{margin-top:16px}.mb8{margin-bottom:8px}
-    .subtle{opacity:.9}
+    .mt8{margin-top:8px}.mt16{margin-top:16px}
   </style>
 </head>
 <body>
@@ -46,7 +44,7 @@
   <header>
     <div>
       <h1>RRM-FT Assistant — FSMA 204 <span class="badge">web-only</span></h1>
-      <div class="badge">Données FDA RRM-FT officielles (aucun recalcul) — idéal HACCP / GFSI / FSMA 204</div>
+      <div class="badge">Données FDA RRM-FT officielles (aucun recalcul) — HACCP / GFSI / FSMA 204</div>
     </div>
     <div style="display:flex;gap:8px">
       <select id="lang" title="Language">
@@ -65,7 +63,7 @@
           <span id="statusBadge" class="chip warn">loading…</span>
           <small id="counts" class="muted right">–</small>
         </div>
-        <small class="muted">L’app charge 2A/1A/2B depuis ce dépôt GitHub. Si <code>manifest.json</code> et <code>metadata/checksums.json</code> sont présents, l’intégrité (SHA-256) est vérifiée.</small>
+        <small class="muted">Chargement 2A/1A/2B depuis ce dépôt. Si <code>manifest.json</code> et <code>metadata/checksums.json</code> sont présents, l’intégrité SHA-256 est vérifiée.</small>
       </div>
       <div class="col">
         <label>Recherche / sélection denrée</label>
@@ -75,7 +73,7 @@
         </div>
         <div class="mt8" style="display:flex;gap:8px;align-items:center">
           <span id="ftlBadge" class="chip hidden">FTL</span>
-          <span id="aggScore" class="mono subtle"></span>
+          <span id="aggScore" class="mono"></span>
           <small id="catName" class="muted right"></small>
         </div>
       </div>
@@ -90,11 +88,7 @@
     <div style="max-height:440px;overflow:auto;margin-top:6px;border-radius:10px">
       <table id="pairsTable">
         <thead>
-          <tr>
-            <th>Hazard</th>
-            <th>C1</th><th>C2</th><th>C3</th><th>C4</th><th>C5</th><th>C6</th><th>C7</th>
-            <th>Score</th>
-          </tr>
+          <tr><th>Hazard</th><th>C1</th><th>C2</th><th>C3</th><th>C4</th><th>C5</th><th>C6</th><th>C7</th><th>Score</th></tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -131,13 +125,12 @@
         <li>Food Traceability List (FTL) : <a href="https://cfsanappsexternal.fda.gov/scripts/FDARiskRankingModelforFoodTracingfinalrule/" target="_blank" rel="noopener">FDA</a></li>
         <li>CTE/KDE — FSMA 204 : <a href="https://www.fda.gov/media/163132/download" target="_blank" rel="noopener">FDA</a></li>
       </ul>
-      <small class="muted">Le modèle RRM-FT évalue le risque intrinsèque (indépendant des contrôles). S’utilise en complément des programmes HACCP & normes GFSI.</small>
+      <small class="muted">RRM-FT classe le risque intrinsèque (indépendant des contrôles). À combiner avec HACCP / GFSI pour la maîtrise opérationnelle.</small>
     </details>
   </section>
 </div>
 
 <script>
-/* =================== Helpers (chemins, SHA, i18n) =================== */
 const $ = s => document.querySelector(s);
 const $tb = s => document.querySelector(s).tBodies[0];
 
@@ -150,23 +143,17 @@ const state = {
     oneA:["en/ftl_table_1A.json","ftl_table_1A.json"],
     manifest:["manifest.json"],
     checks:["metadata/checksums.json","checksums.json"],
-    // ✅ accepte: cat__commodity.json, __commodity.json, commodity.json (en/… puis racine)
+    // Essaie tous les noms plausibles: cat__commodity, __commodity, _commodity, commodity (en/ puis racine)
     pairs:(cat,com)=>{
       const C = slugify(cat||""); const M = slugify(com||""); const v=[];
       if(C){ v.push(`en/pairs_table_2B/${C}__${M}.json`, `pairs_table_2B/${C}__${M}.json`); }
       v.push(`en/pairs_table_2B/__${M}.json`, `pairs_table_2B/__${M}.json`);
-      v.push(`en/pairs_table_2B/${M}.json`, `pairs_table_2B/${M}.json`);
+      v.push(`en/pairs_table_2B/_${M}.json`,  `pairs_table_2B/_${M}.json`);
+      v.push(`en/pairs_table_2B/${M}.json`,   `pairs_table_2B/${M}.json`);
       return v;
     },
     i18nFR:["i18n/fr_map.json"]
   }
-};
-
-const log = msg => {
-  const t = new Date().toISOString();
-  state.log.push({t,msg});
-  const d = $("#log");
-  d.textContent = (d.textContent?d.textContent+"\n":"")+`[${t}] ${msg}`;
 };
 
 const toHex = ab => [...new Uint8Array(ab)].map(b=>b.toString(16).padStart(2,"0")).join("");
@@ -174,34 +161,19 @@ async function sha256(ab){ return toHex(await crypto.subtle.digest("SHA-256", ab
 function slugify(s){ return String(s).replaceAll("&","and").normalize("NFKD").replace(/[^\x00-\x7F]/g,"").replace(/[^a-zA-Z0-9]+/g,"_").replace(/^_+|_+$/g,"").toLowerCase().slice(0,120); }
 function cleanLabel(s){ return String(s||"").replace(/^\s*(\*|<\\?ast>|\\\*<\/ast>|<\/?ast>)+\s*/i,"").replace(/\u00A0/g," ").replace(/\s+/g," ").trim(); }
 
-async function fetchAB(path){
-  const r = await fetch(path,{cache:"no-store"});
-  if(!r.ok) throw new Error(`${path} -> HTTP ${r.status}`);
-  return await r.arrayBuffer();
-}
-async function fetchJSON(path){
-  const ab = await fetchAB(path);
-  let json=null; try{ json = JSON.parse(new TextDecoder().decode(ab)); }catch{}
-  return {json, ab};
-}
-async function fetchFirst(paths){
-  let err;
-  for(const p of paths){
-    try{ const r = await fetchJSON(p); return {...r, path:p}; }catch(e){ err=e; }
-  }
-  throw err || new Error("Aucun chemin accessible: "+paths.join(", "));
-}
+const log = msg => { const t=new Date().toISOString(); state.log.push({t,msg}); const d=$("#log"); d.textContent=(d.textContent?d.textContent+"\n":"")+`[${t}] ${msg}`; };
 
-/* =================== Normalisation 2A / 1A =================== */
+async function fetchAB(path){ const r=await fetch(path,{cache:"no-store"}); if(!r.ok) throw new Error(`${path} -> HTTP ${r.status}`); return await r.arrayBuffer(); }
+async function fetchJSON(path){ const ab=await fetchAB(path); let json=null; try{ json=JSON.parse(new TextDecoder().decode(ab)); }catch{} return {json,ab}; }
+async function fetchFirst(paths){ let err; for(const p of paths){ try{ const r=await fetchJSON(p); return {...r,path:p}; }catch(e){ err=e; } } throw err||new Error("Aucun chemin: "+paths.join(", ")); }
+
 function normalizeTwoA(data){
   if(!data) return {commodities:[]};
   if(Array.isArray(data)) return {commodities:data};
   if(data.commodities) return data;
   if(data.items) return {commodities:data.items};
   if(data.data) return {commodities:data.data};
-  const vals = Object.values(data);
-  if(Array.isArray(vals[0])) return {commodities:vals[0]};
-  return {commodities:[]};
+  const vals=Object.values(data); if(Array.isArray(vals[0])) return {commodities:vals[0]}; return {commodities:[]};
 }
 function normalizeOneA(data){
   if(!data) return {items:[]};
@@ -209,34 +181,27 @@ function normalizeOneA(data){
   if(data.items) return data;
   if(data.commodities) return {items:data.commodities};
   if(data.data) return {items:data.data};
-  const vals = Object.values(data);
-  if(Array.isArray(vals[0])) return {items:vals[0]};
-  return {items:[]};
+  const vals=Object.values(data); if(Array.isArray(vals[0])) return {items:vals[0]}; return {items:[]};
 }
 
-/* =================== Chargement + intégrité =================== */
 async function loadAll(){
-  const badge=$("#statusBadge");
-  badge.textContent="loading…"; badge.className="chip warn";
+  const badge=$("#statusBadge"); badge.textContent="loading…"; badge.className="chip warn";
+  try{ state.manifest=(await fetchFirst(state.paths.manifest)).json; }catch{ state.manifest=null; }
+  try{ state.checksums=(await fetchFirst(state.paths.checks)).json; }catch{ state.checksums=null; }
 
-  try{ state.manifest = (await fetchFirst(state.paths.manifest)).json; }catch{ state.manifest=null; }
-  try{ state.checksums = (await fetchFirst(state.paths.checks)).json; }catch{ state.checksums=null; }
-
-  const twoA = await fetchFirst(state.paths.twoA);
-  const oneA = await fetchFirst(state.paths.oneA);
+  const twoA=await fetchFirst(state.paths.twoA);
+  const oneA=await fetchFirst(state.paths.oneA);
   await verifyIfPossible(twoA.path,twoA.ab);
   await verifyIfPossible(oneA.path,oneA.ab);
+  state.twoA=normalizeTwoA(twoA.json);
+  state.oneA=normalizeOneA(oneA.json);
 
-  state.twoA = normalizeTwoA(twoA.json);
-  state.oneA = normalizeOneA(oneA.json);
+  try{ const fr=await fetchFirst(state.paths.i18nFR); if(fr.json && typeof fr.json==="object") state.i18n=fr.json; }catch{}
 
-  // i18n FR facultatif
-  try{ const fr = await fetchFirst(state.paths.i18nFR); if(fr.json && typeof fr.json==="object") state.i18n = fr.json; }catch{}
-
-  const n2A = state.twoA?.commodities?.length || 0;
-  const n1A = state.oneA?.items?.length || 0;
-  const n2B = (state.manifest?.sources||[]).filter(s=>String(s.path||"").includes("pairs_table_2B/")).length || "n/a";
-  $("#counts").textContent = `${n1A} FTL • ${n2A} commodities • ${n2B} files 2B`;
+  const n2A=state.twoA?.commodities?.length||0;
+  const n1A=state.oneA?.items?.length||0;
+  const n2B=(state.manifest?.sources||[]).filter(s=>String(s.path||"").includes("pairs_table_2B/")).length||"n/a";
+  $("#counts").textContent=`${n1A} FTL • ${n2A} commodities • ${n2B} files 2B`;
 
   badge.textContent="intégrité OK (si manifest/checksums présents)";
   badge.className="chip ok";
@@ -245,29 +210,27 @@ async function loadAll(){
   log("Données FDA chargées.");
 }
 
-async function verifyIfPossible(path, ab){
-  const digest = await sha256(ab);
-  const m = state.manifest?.sources?.find(s=>s.path===path)?.sha256;
-  const c = state.checksums?.[path];
-  if(m && m!==digest) throw new Error(`SHA mismatch manifest for ${path}`);
-  if(c && c!==digest) throw new Error(`SHA mismatch checksums for ${path}`);
-  state.cache.set(path,{ab,sha256:digest});
+async function verifyIfPossible(path,ab){
+  const dig=await sha256(ab);
+  const m=state.manifest?.sources?.find(s=>s.path===path)?.sha256;
+  const c=state.checksums?.[path];
+  if(m && m!==dig) throw new Error(`SHA mismatch manifest for ${path}`);
+  if(c && c!==dig) throw new Error(`SHA mismatch checksums for ${path}`);
+  state.cache.set(path,{ab,sha256:dig});
 }
 
-/* =================== FR/EN =================== */
 const tCat = en => state.lang==="fr" ? (state.i18n.category?.[en]||en) : en;
 const tCom = en => state.lang==="fr" ? (state.i18n.commodity?.[en]||en) : en;
 const tHaz = en => state.lang==="fr" ? (state.i18n.hazard?.[en]||en) : en;
 
-/* =================== Commodities =================== */
 function populateCommodities(){
   const sel=$("#commoditySelect"); const q=($("#q").value||"").toLowerCase();
   const items=(state.twoA?.commodities||[])
     .map(r=>({
       category:r.category ?? r.commodity_category ?? r.CommodityCategory ?? "",
       commodity:cleanLabel(r.commodity ?? r.Commodity ?? ""),
-      onFTL: r.onFTL ?? r.on_ftl ?? r.ftl ?? false,
-      riskScoreCommodity: r.riskScoreCommodity ?? r.agg_score ?? r.aggScore ?? r.risk ?? r.score
+      onFTL:r.onFTL ?? r.on_ftl ?? r.ftl ?? false,
+      riskScoreCommodity:r.riskScoreCommodity ?? r.agg_score ?? r.aggScore ?? r.risk ?? r.score
     }))
     .filter(r=>r.commodity && (!q || [r.commodity,r.category].some(x=>String(x).toLowerCase().includes(q))))
     .sort((a,b)=>String(a.commodity).localeCompare(String(b.commodity)));
@@ -283,29 +246,26 @@ function populateCommodities(){
   if(items.length){ sel.selectedIndex=0; onCommodityChange(); }
 }
 
-/* =================== Pairs 2B =================== */
 async function onCommodityChange(){
   const v=$("#commoditySelect").value; if(!v) return;
   const [category,commodity]=JSON.parse(v);
   state.current.category=category; state.current.commodity=commodity;
 
-  const paths = state.paths.pairs(category,commodity);
-  const res = await fetchFirst(paths);
+  const res=await fetchFirst(state.paths.pairs(category,commodity));
   await verifyIfPossible(res.path,res.ab);
-  const data = res.json || {};
-  const pairs = Array.isArray(data) ? data : (data.pairs || []);
-  state.current.pairs = pairs.map(p=>({
-    hazard: p.hazard ?? p.Hazard ?? p.hazard_name ?? p.hazardName ?? "",
+  const data=res.json||{};
+  const pairs=Array.isArray(data)?data:(data.pairs||[]);
+  state.current.pairs=pairs.map(p=>({
+    hazard:p.hazard ?? p.Hazard ?? p.hazard_name ?? p.hazardName ?? "",
     C1:+p.C1, C2:+p.C2, C3:+p.C3, C4:+p.C4, C5:+p.C5, C6:+p.C6, C7:+p.C7,
     riskScorePair:+(p.riskScorePair ?? p.pairRiskScore ?? p.risk ?? p.score)
   })).filter(p=>p.hazard);
 
   const opt=$("#commoditySelect").selectedOptions[0];
-  const onFTL = opt?.dataset?.ftl==="1";
-  const agg = opt?.dataset?.agg ?? "";
+  const onFTL=opt?.dataset?.ftl==="1"; const agg=opt?.dataset?.agg ?? "";
   $("#ftlBadge").className=`chip ${onFTL?"ok":"hidden"}`; $("#ftlBadge").textContent=onFTL?"FTL":"";
-  $("#aggScore").textContent = agg ? `aggregated score: ${agg}` : "";
-  $("#catName").textContent = `${tCat(category)} • ${tCom(commodity)}`;
+  $("#aggScore").textContent=agg?`aggregated score: ${agg}`:"";
+  $("#catName").textContent=`${tCat(category)} • ${tCom(commodity)}`;
 
   renderPairs();
   log(`Ouverture denrée: ${category} — ${commodity}`);
@@ -322,7 +282,6 @@ function renderPairs(){
   }
 }
 
-/* =================== Projets .RRM =================== */
 async function saveRRM(){
   if(!state.current.category){ alert("Choisis d’abord une denrée."); return; }
   const zip=new JSZip();
@@ -346,7 +305,7 @@ async function openRRM(ev){
   const f=ev.target.files?.[0]; if(!f) return;
   const zip=await JSZip.loadAsync(await f.arrayBuffer());
   const proj=JSON.parse(await zip.file("project.json").async("string"));
-  state.lang=proj.uiLang || "fr"; $("#lang").value=state.lang;
+  state.lang=proj.uiLang||"fr"; $("#lang").value=state.lang;
   $("#projName").value=proj?.notes?.name||""; $("#projRef").value=proj?.notes?.ref||""; $("#projNotes").value=proj?.notes?.notes||"";
   state.log=proj?.log||[];
   if(proj?.selection?.category && proj?.selection?.commodity){
@@ -357,18 +316,18 @@ async function openRRM(ev){
   log("Projet chargé (.RRM).");
 }
 
-/* =================== Export EN (CSV) =================== */
 function exportEN(){
-  const pairs=state.current.pairs||[];
   const rows=[["Category","Commodity","Hazard","C1","C2","C3","C4","C5","C6","C7","PairRisk"]];
-  for(const p of pairs){ rows.push([state.current.category,state.current.commodity,p.hazard,p.C1,p.C2,p.C3,p.C4,p.C5,p.C6,p.C7,p.riskScorePair]); }
+  for(const p of state.current.pairs){
+    rows.push([state.current.category,state.current.commodity,p.hazard,p.C1,p.C2,p.C3,p.C4,p.C5,p.C6,p.C7,p.riskScorePair]);
+  }
   const csv=rows.map(r=>r.map(x=>`"${String(x).replaceAll('"','""')}"`).join(",")).join("\n");
   const a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
-  a.download=`${slugify(state.current.commodity||"export")}_EN.csv`; a.click(); URL.revokeObjectURL(a.href);
+  a.download=`${slugify(state.current.commodity||"export")}_EN.csv`;
+  a.click(); URL.revokeObjectURL(a.href);
 }
 
-/* =================== UI events =================== */
 $("#lang").addEventListener("change", ()=>{ state.lang=$("#lang").value; populateCommodities(); renderPairs(); });
 $("#q").addEventListener("input", populateCommodities);
 $("#commoditySelect").addEventListener("change", onCommodityChange);
@@ -376,12 +335,11 @@ $("#saveRRM").addEventListener("click", saveRRM);
 $("#openRRM").addEventListener("change", openRRM);
 $("#exportEN").addEventListener("click", exportEN);
 
-/* =================== GO =================== */
 loadAll().catch(err=>{
   $("#statusBadge").className="chip bad";
   $("#statusBadge").textContent="erreur chargement";
   log("ERREUR: "+(err?.message||err));
-  alert("Erreur de chargement des données FDA.\nDétail:\n"+(err?.message||err)+"\n\nVérifie les chemins et le manifest.");
+  alert("Erreur de chargement des données FDA.\nDétail:\n"+(err?.message||err));
 });
 </script>
 </body>
