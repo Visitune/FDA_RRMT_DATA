@@ -1,398 +1,315 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FDA RRM-FT Assistant - GitHub Version</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <meta name="description" content="FDA Risk Ranking Model for Food Tracing - FSMA 204 Rule">
+  <meta charset="utf-8" />
+  <title>RRM-FT Assistant — FSMA 204 (FR/EN)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
+  <style>
+    :root{--bg:#0b0c10;--panel:#151820;--muted:#8ea0b3;--text:#eaf2f8;--acc:#37b24d;--warn:#f59f00;--err:#fa5252}
+    *{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    .wrap{max-width:1100px;margin:32px auto;padding:0 16px}
+    header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+    h1{margin:0;font-size:20px}
+    .card{background:var(--panel);border-radius:14px;padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.2);margin:12px 0}
+    .row{display:flex;gap:12px;flex-wrap:wrap}.col{flex:1 1 320px}
+    select,input,button{width:100%;padding:10px;border:1px solid #2a2f3a;background:#0f1320;color:var(--text);border-radius:10px}
+    button{cursor:pointer}
+    .pill{display:inline-block;padding:.15rem .55rem;border-radius:999px;font-weight:600}
+    .ok{background:rgba(55,178,77,.15);color:var(--acc);border:1px solid rgba(55,178,77,.4)}
+    .bad{background:rgba(250,82,82,.12);color:var(--err);border:1px solid rgba(250,82,82,.35)}
+    .warn{background:rgba(245,159,0,.12);color:var(--warn);border:1px solid rgba(245,159,0,.35)}
+    small.muted{color:var(--muted)} .right{margin-left:auto}.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+    table{width:100%;border-collapse:collapse} th,td{padding:8px 10px;border-bottom:1px solid #2a2f3a;text-align:left}
+    th{background:#101524;position:sticky;top:0;z-index:1}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+    .hidden{display:none}.mt8{margin-top:8px}.mt16{margin-top:16px}
+  </style>
 </head>
 <body>
-    <header>
-        <h1>FDA RRM-FT Assistant</h1>
-        <p>Risk Ranking Model for Food Tracing (FSMA 204 Rule)</p>
-    </header>
+<div class="wrap">
+  <header>
+    <h1>RRM-FT Assistant — FSMA 204 <small class="muted">web-only</small></h1>
+    <div style="display:flex;gap:8px">
+      <select id="lang"><option value="fr">Français (UI)</option><option value="en">English (UI)</option></select>
+      <button id="exportEN" title="Exporter les résultats en anglais">Export EN (CSV)</button>
+    </div>
+  </header>
 
-    <main>
-        <div class="controls">
-            <select id="lang">
-                <option value="fr">Français</option>
-                <option value="en">English</option>
-            </select>
-            
-            <select id="commoditySelect">
-                <option value="">Select a commodity...</option>
-            </select>
-            
-            <input type="search" id="q" placeholder="Search commodities..." aria-label="Search">
-            
-            <span id="statusBadge" class="pill">Loading...</span>
-            <span id="counts"></span>
+  <section class="card">
+    <div class="row">
+      <div class="col">
+        <label>Sources FDA + intégrité</label>
+        <div class="mono" style="display:flex;gap:10px;align-items:center">
+          <span id="statusBadge" class="pill warn">loading…</span>
+          <small id="counts" class="muted right">–</small>
         </div>
-
-        <div class="results">
-            <div class="summary">
-                <span id="ftlBadge" class="pill hidden">FTL</span>
-                <span id="catName"></span>
-                <span id="aggScore"></span>
-            </div>
-
-            <table id="pairsTable">
-                <thead>
-                    <tr>
-                        <th>Hazard</th>
-                        <th>C1</th>
-                        <th>C2</th>
-                        <th>C3</th>
-                        <th>C4</th>
-                        <th>C5</th>
-                        <th>C6</th>
-                        <th>C7</th>
-                        <th>Score</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+        <small class="muted">L’app charge 2A/1A/2B depuis le repo → vérifie SHA-256 si <code>manifest.json</code> / <code>metadata/checksums.json</code> sont présents. Aucune note n’est recalculée.</small>
+      </div>
+      <div class="col">
+        <label>Recherche / sélection denrée</label>
+        <div style="display:flex;gap:8px">
+          <input id="q" placeholder="Rechercher (FR/EN)"/>
+          <select id="commoditySelect"></select>
         </div>
-
-        <div class="project">
-            <h3>Project Management</h3>
-            <input type="text" id="projName" placeholder="Project name">
-            <input type="text" id="projRef" placeholder="Reference">
-            <textarea id="projNotes" placeholder="Notes"></textarea>
-            <input type="file" id="files" multiple>
-            <button id="saveRRM">Save .RRM</button>
-            <input type="file" id="openRRM" accept=".rrm" style="display: none;">
-            <button onclick="document.getElementById('openRRM').click()">Open .RRM</button>
+        <div class="mt8" style="display:flex;gap:8px;align-items:center">
+          <span id="ftlBadge" class="pill hidden">FTL</span>
+          <span id="aggScore" class="mono"></span>
+          <small id="catName" class="muted right"></small>
         </div>
+      </div>
+    </div>
+  </section>
 
-        <div class="log">
-            <h3>Activity Log</h3>
-            <pre id="log"></pre>
-        </div>
-    </main>
+  <section class="card">
+    <div style="display:flex;align-items:center">
+      <h3 style="margin:0">Pairs danger (C1..C7 → score)</h3>
+      <small class="muted right">Méthode & critères : FDA RRM-FT</small>
+    </div>
+    <div style="max-height:420px;overflow:auto;margin-top:6px">
+      <table id="pairsTable">
+        <thead><tr><th>Hazard</th><th>C1</th><th>C2</th><th>C3</th><th>C4</th><th>C5</th><th>C6</th><th>C7</th><th>Score</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script>
-        // GitHub-compatible version
-        const GITHUB_BASE_URL = 'https://raw.githubusercontent.com/Visitune/FDA_RRMT_DATA/main/';
-        
-        class RRMFTApp {
-            constructor() {
-                this.state = {
-                    lang: 'fr',
-                    data: { oneA: null, twoA: null, i18n: { hazard: {}, commodity: {}, category: {} } },
-                    current: { commodity: null, category: null, pairs: null },
-                    log: []
-                };
-                this.init();
-            }
+  <section class="card">
+    <h3 style="margin:0">Projet d’analyse (.RRM)</h3>
+    <div class="grid mt8">
+      <div><label>Nom</label><input id="projName" placeholder="Ex. Analyse — Tomates RTE"></div>
+      <div><label>Réf./Client</label><input id="projRef" placeholder="Ex. CN-2025-001 / Client X"></div>
+      <div><label>Notes</label><input id="projNotes" placeholder="Contexte, sites, etc."></div>
+      <div><label>Pièces jointes</label><input id="files" type="file" multiple></div>
+    </div>
+    <div class="row mt16">
+      <div class="col"><button id="saveRRM">💾 Enregistrer (.RRM)</button></div>
+      <div class="col"><label>Charger .RRM</label><input id="openRRM" type="file" accept=".rrm,.zip"></div>
+    </div>
+    <div class="mt16"><label>Journal</label><div id="log" class="mono" style="background:#0f1320;border-radius:8px;padding:10px;min-height:80px;max-height:180px;overflow:auto"></div></div>
+  </section>
 
-            async init() {
-                this.cacheElements();
-                this.bindEvents();
-                await this.loadData();
-            }
+  <section class="card">
+    <details>
+      <summary><strong>Références FDA</strong></summary>
+      <ul>
+        <li>RRM-FT — Results (Tables 2A/2B) — PDF : <a href="https://www.fda.gov/media/166880/download" target="_blank" rel="noopener">FDA</a></li>
+        <li>RRM-FT web tool (exports : aggregatedAll / aggregatedFTL / pairsAll / pairsFTL)</li>
+        <li>Food Traceability List : <a href="https://cfsanappsexternal.fda.gov/scripts/FDARiskRankingModelforFoodTracingfinalrule/" target="_blank" rel="noopener">FDA</a></li>
+        <li>CTE/KDE — FSMA 204 : <a href="https://www.fda.gov/media/163132/download" target="_blank" rel="noopener">FDA</a></li>
+      </ul>
+    </details>
+  </section>
+</div>
 
-            cacheElements() {
-                this.elements = {
-                    langSelect: document.getElementById('lang'),
-                    commoditySelect: document.getElementById('commoditySelect'),
-                    searchInput: document.getElementById('q'),
-                    statusBadge: document.getElementById('statusBadge'),
-                    counts: document.getElementById('counts'),
-                    ftlBadge: document.getElementById('ftlBadge'),
-                    aggScore: document.getElementById('aggScore'),
-                    catName: document.getElementById('catName'),
-                    pairsTable: document.getElementById('pairsTable'),
-                    projName: document.getElementById('projName'),
-                    projRef: document.getElementById('projRef'),
-                    projNotes: document.getElementById('projNotes'),
-                    filesInput: document.getElementById('files'),
-                    saveRRM: document.getElementById('saveRRM'),
-                    openRRM: document.getElementById('openRRM'),
-                    log: document.getElementById('log')
-                };
-            }
+<script>
+/* ========= Helpers robustes (chemins, SHA, i18n) ========= */
+const $ = s => document.querySelector(s);
+const $tb = s => document.querySelector(s).tBodies[0];
+const state = {
+  manifest: null, checksums: null, cache: new Map(),
+  twoA: null, oneA: null, i18n: {category:{}, commodity:{}, hazard:{}},
+  lang: "fr", log: [], current: {category:null, commodity:null, pairs:[]},
+  paths: { // essaie en/ puis racine
+    twoA: ["en/commodities_table_2A.json","commodities_table_2A.json"],
+    oneA: ["en/ftl_table_1A.json","ftl_table_1A.json"],
+    manifest: ["manifest.json"],
+    checks: ["metadata/checksums.json","checksums.json"],
+    pairs: (cat,com) => [
+      `en/pairs_table_2B/${slugify(cat)}__${slugify(com)}.json`,
+      `pairs_table_2B/${slugify(cat)}__${slugify(com)}.json`
+    ],
+    i18nFR: ["i18n/fr_map.json"]
+  }
+};
+const log = msg => {
+  const t = new Date().toISOString();
+  state.log.push({t,msg});
+  $("#log").textContent = ( $("#log").textContent ? $("#log").textContent+"\n" : "" ) + `[${t}] ${msg}`;
+};
+const toHex = ab => [...new Uint8Array(ab)].map(b=>b.toString(16).padStart(2,"0")).join("");
+async function sha256(ab){ return toHex(await crypto.subtle.digest("SHA-256", ab)); }
+function slugify(s){ return String(s).replaceAll("&","and").normalize("NFKD").replace(/[^\x00-\x7F]/g,"").replace(/[^a-zA-Z0-9]+/g,"_").replace(/^_+|_+$/g,"").toLowerCase().slice(0,120); }
+function cleanLabel(s){ return String(s||"").replace(/^\s*(\*|<\\?ast>|\\\*<\/ast>|<\/?ast>)+\s*/i,"").replace(/\u00A0/g," ").replace(/\s+/g," ").trim(); }
 
-            bindEvents() {
-                this.elements.langSelect.addEventListener('change', (e) => {
-                    this.setLanguage(e.target.value);
-                });
+async function fetchAB(path){
+  const r = await fetch(path,{cache:"no-store"});
+  if(!r.ok) throw new Error(`${path} -> HTTP ${r.status}`);
+  return await r.arrayBuffer();
+}
+async function fetchJSON(path){
+  const ab = await fetchAB(path);
+  let json=null; try{ json = JSON.parse(new TextDecoder().decode(ab)); }catch{}
+  return {json, ab};
+}
+async function fetchFirst(paths){ // essaie en cascade
+  let lastErr;
+  for(const p of paths){
+    try{ const r = await fetchJSON(p); return {...r, path:p}; }catch(e){ lastErr=e; }
+  }
+  throw lastErr || new Error("Aucun chemin accessible: "+paths.join(", "));
+}
 
-                this.elements.commoditySelect.addEventListener('change', (e) => {
-                    this.selectCommodity(e.target.value);
-                });
+/* ========= Chargement + intégrité ========= */
+async function loadAll(){
+  $("#statusBadge").textContent="loading…"; $("#statusBadge").className="pill warn";
+  // manifest (facultatif mais préférable)
+  try{ state.manifest = (await fetchFirst(state.paths.manifest)).json; }catch{ state.manifest = null; }
+  // checksums (facultatif)
+  try{ state.checksums = (await fetchFirst(state.paths.checks)).json; }catch{ state.checksums = null; }
 
-                this.elements.searchInput.addEventListener('input', this.debounce((e) => {
-                    this.handleSearch(e.target.value);
-                }, 300));
+  // 2A / 1A
+  const twoAres = await fetchFirst(state.paths.twoA);
+  const oneAres = await fetchFirst(state.paths.oneA);
+  await verifyIfPossible(twoAres.path, twoAres.ab);
+  await verifyIfPossible(oneAres.path, oneAres.ab);
+  state.twoA = twoAres.json; state.oneA = oneAres.json;
 
-                this.elements.saveRRM.addEventListener('click', () => this.saveProject());
-                this.elements.openRRM.addEventListener('change', (e) => {
-                    if (e.target.files[0]) this.loadProject(e.target.files[0]);
-                });
-            }
+  // i18n FR (optionnel)
+  try{
+    const fr = await fetchFirst(state.paths.i18nFR);
+    state.i18n = fr.json || state.i18n;
+  }catch{}
 
-            debounce(func, wait) {
-                let timeout;
-                return function(...args) {
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => func.apply(this, args), wait);
-                };
-            }
+  // compteurs
+  const n2A = state.twoA?.commodities?.length || 0;
+  const n1A = state.oneA?.items?.length || 0;
+  const n2B = (state.manifest?.sources||[]).filter(s=>String(s.path||"").includes("pairs_table_2B/")).length
+           || "n/a";
+  $("#counts").textContent = `${n1A} FTL • ${n2A} commodities • ${n2B} files 2B`;
 
-            async fetchData(path) {
-                try {
-                    const response = await fetch(GITHUB_BASE_URL + path);
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    return await response.json();
-                } catch (error) {
-                    this.log(`Error loading ${path}: ${error.message}`, 'error');
-                    throw error;
-                }
-            }
+  $("#statusBadge").textContent = "intégrité OK (si manifest/checksums présents)";
+  $("#statusBadge").className = "pill ok";
 
-            async loadData() {
-                try {
-                    this.setLoading(true);
-                    this.log('Loading FDA RRM-FT data from GitHub...');
+  populateCommodities();
+  log("Données FDA chargées.");
+}
 
-                    const [twoA, oneA, hazardI18n, commodityI18n, categoryI18n] = await Promise.all([
-                        this.fetchData('commodities_table_2A.json'),
-                        this.fetchData('ftl_table_1A.json'),
-                        this.fetchData('i18n/hazard.json'),
-                        this.fetchData('i18n/commodity.json'),
-                        this.fetchData('i18n/category.json')
-                    ]);
+async function verifyIfPossible(path, ab){
+  // compare hash au manifest/checksums si présence; sinon ne bloque pas
+  const digest = await sha256(ab);
+  const fromManifest = state.manifest?.sources?.find(s=>s.path===path)?.sha256;
+  const fromChecks = state.checksums?.[path];
+  if(fromManifest && fromManifest!==digest) throw new Error(`SHA mismatch manifest for ${path}`);
+  if(fromChecks && fromChecks!==digest) throw new Error(`SHA mismatch checksums for ${path}`);
+  state.cache.set(path,{ab,sha256:digest});
+}
 
-                    this.state.data.twoA = twoA.data || twoA;
-                    this.state.data.oneA = oneA.data || oneA;
-                    this.state.data.i18n.hazard = hazardI18n;
-                    this.state.data.i18n.commodity = commodityI18n;
-                    this.state.data.i18n.category = categoryI18n;
+/* ========= FR/EN (UI + mapping facultatif) ========= */
+const tCat = en => state.lang==="fr" ? (state.i18n.category?.[en]||en) : en;
+const tCom = en => state.lang==="fr" ? (state.i18n.commodity?.[en]||en) : en;
+const tHaz = en => state.lang==="fr" ? (state.i18n.hazard?.[en]||en) : en;
 
-                    this.updateDataStatus();
-                    this.populateCommoditySelect();
-                    this.log('Data loaded successfully from GitHub', 'success');
+/* ========= Liste denrées ========= */
+function populateCommodities(){
+  const sel = $("#commoditySelect"); const q = ($("#q").value||"").toLowerCase();
+  const items = (state.twoA?.commodities||[])
+    .filter(r => !q || [r.commodity,r.category].some(x=>x.toLowerCase().includes(q)))
+    .sort((a,b)=>a.commodity.localeCompare(b.commodity));
+  sel.innerHTML="";
+  for(const r of items){
+    const o = document.createElement("option");
+    o.value = JSON.stringify([r.category,r.commodity]);
+    o.textContent = `${tCom(r.commodity)}${r.onFTL?" [FTL]":""} — ${tCat(r.category)}`;
+    sel.appendChild(o);
+  }
+  if(items.length){ sel.selectedIndex=0; onCommodityChange(); }
+}
 
-                } catch (error) {
-                    this.log(`Critical error: ${error.message}`, 'error');
-                    this.setStatus('error', 'Error loading data');
-                } finally {
-                    this.setLoading(false);
-                }
-            }
+/* ========= Chargement 2B pour une denrée ========= */
+async function onCommodityChange(){
+  const v = $("#commoditySelect").value; if(!v) return;
+  const [category,commodity] = JSON.parse(v);
+  state.current.category = category; state.current.commodity = commodity;
 
-            setLoading(isLoading) {
-                const badge = this.elements.statusBadge;
-                badge.textContent = isLoading ? 'Loading...' : 'Ready';
-                badge.className = isLoading ? 'pill warn' : 'pill ok';
-            }
+  const pairPaths = state.paths.pairs(category,commodity);
+  const res = await fetchFirst(pairPaths); // essaye en/ puis racine
+  await verifyIfPossible(res.path, res.ab);
+  const data = res.json || {};
+  state.current.pairs = data.pairs || [];
 
-            setStatus(type, message) {
-                this.elements.statusBadge.textContent = message;
-                this.elements.statusBadge.className = `pill ${type}`;
-            }
+  const r2a = state.twoA.commodities.find(r=>r.category===category && r.commodity===commodity);
+  $("#ftlBadge").className = `pill ${r2a?.onFTL?"ok": "hidden"}`; $("#ftlBadge").textContent = r2a?.onFTL?"FTL":"";
+  $("#aggScore").textContent = r2a ? `score agrégé: ${r2a.riskScoreCommodity}` : "";
+  $("#catName").textContent = `${tCat(category)} • ${tCom(commodity)}`;
 
-            updateDataStatus() {
-                if (this.state.data.twoA && this.state.data.oneA) {
-                    const totalCommodities = this.state.data.twoA.length || Object.keys(this.state.data.twoA).length;
-                    this.elements.counts.textContent = `${totalCommodities} commodities`;
-                }
-            }
+  renderPairs();
+  log(`Ouverture denrée: ${category} — ${commodity}`);
+}
 
-            populateCommoditySelect() {
-                if (!this.state.data.twoA) return;
+function renderPairs(){
+  const tb = $tb("#pairsTable"); tb.innerHTML="";
+  for(const p of state.current.pairs){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${tHaz(p.hazard)}</td>
+      <td>${p.C1}</td><td>${p.C2}</td><td>${p.C3}</td><td>${p.C4}</td><td>${p.C5}</td><td>${p.C6}</td><td>${p.C7}</td>
+      <td class="mono">${p.riskScorePair}</td>`;
+    tb.appendChild(tr);
+  }
+}
 
-                const select = this.elements.commoditySelect;
-                select.innerHTML = '<option value="">Select a commodity...</option>';
+/* ========= Projets .RRM ========= */
+async function saveRRM(){
+  if(!state.current.category) { alert("Choisis d’abord une denrée."); return; }
+  const zip = new JSZip();
+  const proj = {
+    schemaVersion:"rrmft-project-1.0", savedAt:new Date().toISOString(), uiLang:state.lang,
+    selection:{category:state.current.category, commodity:state.current.commodity},
+    results: state.current.pairs,
+    notes:{name:$("#projName").value, ref:$("#projRef").value, notes:$("#projNotes").value},
+    log: state.log
+  };
+  zip.file("project.json", JSON.stringify(proj, null, 2));
+  const files = $("#files").files;
+  for(let i=0;i<files.length;i++){ zip.file("attachments/"+files[i].name, await files[i].arrayBuffer()); }
+  const blob = await zip.generateAsync({type:"blob"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${slugify($("#projName").value||state.current.commodity)||"rrmft"}.rrm`;
+  a.click(); URL.revokeObjectURL(a.href);
+  log("Projet sauvegardé (.RRM).");
+}
+async function openRRM(ev){
+  const f = ev.target.files?.[0]; if(!f) return;
+  const zip = await JSZip.loadAsync(await f.arrayBuffer());
+  const proj = JSON.parse(await zip.file("project.json").async("string"));
+  state.lang = proj.uiLang || "fr"; $("#lang").value = state.lang;
+  $("#projName").value = proj?.notes?.name||""; $("#projRef").value=proj?.notes?.ref||""; $("#projNotes").value=proj?.notes?.notes||"";
+  state.log = proj?.log || [];
+  if(proj?.selection?.category && proj?.selection?.commodity){
+    $("#q").value=""; populateCommodities();
+    $("#commoditySelect").value = JSON.stringify([proj.selection.category, proj.selection.commodity]);
+    await onCommodityChange();
+  }
+  log("Projet chargé (.RRM).");
+}
 
-                const commodities = (Array.isArray(this.state.data.twoA) ? this.state.data.twoA : Object.values(this.state.data.twoA))
-                    .map(item => ({
-                        code: item.code,
-                        name: this.state.data.i18n.commodity[item.code]?.[this.state.lang] || item.commodity || item.name
-                    }))
-                    .sort((a, b) => a.name.localeCompare(b.name));
+/* ========= Export EN (CSV) ========= */
+function exportEN(){
+  const pairs = state.current.pairs||[];
+  const L = [["Category","Commodity","Hazard","C1","C2","C3","C4","C5","C6","C7","PairRisk"]];
+  for(const p of pairs){ L.push([state.current.category, state.current.commodity, p.hazard, p.C1,p.C2,p.C3,p.C4,p.C5,p.C6,p.C7,p.riskScorePair]); }
+  const csv = L.map(r=>r.map(x=>`"${String(x).replaceAll('"','""')}"`).join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  a.download = `${slugify(state.current.commodity||"export")}_EN.csv`; a.click(); URL.revokeObjectURL(a.href);
+}
 
-                commodities.forEach(item => {
-                    const option = document.createElement('option');
-                    option.value = item.code;
-                    option.textContent = `${item.name} (${item.code})`;
-                    select.appendChild(option);
-                });
-            }
+/* ========= Événements UI ========= */
+$("#lang").addEventListener("change", ()=>{ state.lang=$("#lang").value; populateCommodities(); renderPairs(); });
+$("#q").addEventListener("input", populateCommodities);
+$("#commoditySelect").addEventListener("change", onCommodityChange);
+$("#saveRRM").addEventListener("click", saveRRM);
+$("#openRRM").addEventListener("change", openRRM);
+$("#exportEN").addEventListener("click", exportEN);
 
-            setLanguage(lang) {
-                this.state.lang = lang;
-                this.populateCommoditySelect();
-                if (this.state.current.commodity) {
-                    this.selectCommodity(this.state.current.commodity);
-                }
-            }
-
-            async selectCommodity(code) {
-                if (!code) return;
-
-                this.state.current.commodity = code;
-                const commodity = this.state.data.twoA.find ? 
-                    this.state.data.twoA.find(c => c.code === code) : 
-                    this.state.data.twoA[code];
-
-                if (!commodity) return;
-
-                // Update UI
-                const isFTL = this.state.data.oneA.find ? 
-                    this.state.data.oneA.find(c => c.code === code)?.ftl : 
-                    this.state.data.oneA[code]?.ftl;
-
-                this.elements.ftlBadge.style.display = isFTL ? 'inline-block' : 'none';
-                
-                const catName = this.state.data.i18n.category[commodity.category]?.[this.state.lang] || 
-                               commodity.category;
-                this.elements.catName.textContent = catName;
-
-                await this.loadPairs(code);
-            }
-
-            async loadPairs(code) {
-                try {
-                    const pairs = await this.fetchData(`pairs_table_2B/${code}.json`);
-                    this.state.current.pairs = pairs;
-                    this.displayPairs(pairs);
-                    
-                    const maxScore = Math.max(...Object.values(pairs).map(p => p.score || 0));
-                    this.elements.aggScore.textContent = `Max score: ${maxScore}`;
-                    
-                } catch (error) {
-                    this.log(`Error loading pairs: ${error.message}`, 'error');
-                    this.displayPairs({});
-                }
-            }
-
-            displayPairs(pairs) {
-                const tbody = this.elements.pairsTable.querySelector('tbody');
-                tbody.innerHTML = '';
-
-                if (!pairs || Object.keys(pairs).length === 0) {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = '<td colspan="9" style="text-align: center; padding: 32px;">No data available</td>';
-                    tbody.appendChild(tr);
-                    return;
-                }
-
-                Object.entries(pairs)
-                    .sort(([, a], [, b]) => (b.score || 0) - (a.score || 0))
-                    .forEach(([hazard, data]) => {
-                        const tr = document.createElement('tr');
-                        const hazardName = this.state.data.i18n.hazard[hazard]?.[this.state.lang] || hazard;
-                        
-                        tr.innerHTML = `
-                            <th>${hazardName}</th>
-                            <td>${data.c1 || 0}</td>
-                            <td>${data.c2 || 0}</td>
-                            <td>${data.c3 || 0}</td>
-                            <td>${data.c4 || 0}</td>
-                            <td>${data.c5 || 0}</td>
-                            <td>${data.c6 || 0}</td>
-                            <td>${data.c7 || 0}</td>
-                            <td><strong>${data.score || 0}</strong></td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-            }
-
-            handleSearch(query) {
-                if (!query) return;
-
-                const select = this.elements.commoditySelect;
-                const options = Array.from(select.options);
-                const lowercaseQuery = query.toLowerCase();
-
-                const match = options.find(opt => 
-                    opt.text.toLowerCase().includes(lowercaseQuery) ||
-                    opt.value.toLowerCase().includes(lowercaseQuery)
-                );
-
-                if (match && match.value) {
-                    select.value = match.value;
-                    this.selectCommodity(match.value);
-                }
-            }
-
-            async saveProject() {
-                try {
-                    const name = this.elements.projName.value.trim();
-                    const ref = this.elements.projRef.value.trim();
-                    const notes = this.elements.projNotes.value.trim();
-                    
-                    if (!this.state.current.commodity) {
-                        alert('Please select a commodity first');
-                        return;
-                    }
-
-                    const project = {
-                        metadata: {
-                            name: name || 'Untitled',
-                            reference: ref || '',
-                            notes: notes || '',
-                            created: new Date().toISOString(),
-                            version: '1.0'
-                        },
-                        analysis: {
-                            commodity: this.state.current.commodity,
-                            pairs: this.state.current.pairs
-                        }
-                    };
-
-                    const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
-                    const filename = `rrmft_${name || 'project'}_${new Date().toISOString().split('T')[0]}.rrm`;
-
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = filename;
-                    a.click();
-                    URL.revokeObjectURL(url);
-
-                    this.log(`Project saved: ${filename}`, 'success');
-                } catch (error) {
-                    this.log(`Error saving project: ${error.message}`, 'error');
-                }
-            }
-
-            async loadProject(file) {
-                try {
-                    const text = await file.text();
-                    const project = JSON.parse(text);
-                    
-                    this.elements.projName.value = project.metadata.name || '';
-                    this.elements.projRef.value = project.metadata.reference || '';
-                    this.elements.projNotes.value = project.metadata.notes || '';
-                    
-                    if (project.analysis.commodity) {
-                        this.selectCommodity(project.analysis.commodity);
-                    }
-
-                    this.log(`Project loaded: ${file.name}`, 'success');
-                } catch (error) {
-                    this.log(`Error loading project: ${error.message}`, 'error');
-                }
-            }
-
-            log(message, type = 'info') {
-                const timestamp = new Date().toLocaleTimeString();
-                this.elements.log.textContent += `[${timestamp}] ${message}\n`;
-                this.elements.log.scrollTop = this.elements.log.scrollHeight;
-            }
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            new RRMFTApp();
-        });
-    </script>
+/* ========= GO ========= */
+loadAll().catch(err=>{
+  $("#statusBadge").className="pill bad";
+  $("#statusBadge").textContent="erreur chargement";
+  log("ERREUR: "+(err?.message||err));
+  alert("Erreur de chargement des données FDA.\nDétail:\n"+(err?.message||err)+"\n\nVérifie les chemins (en/… vs racine) et le manifest.");
+});
+</script>
 </body>
-
 </html>
-
