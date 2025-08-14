@@ -1,0 +1,42 @@
+[
+  {
+    "commodity": "Milk, Fluid",
+    "commodity_code": "MILK_FLUID",
+    "category": "Dairy Products"
+  },
+  {
+    "commodity": "Cheese, Soft",
+    "commodity_code": "CHEESE_SOFT",
+    "category": "Dairy Products"
+  },
+  {
+    "commodity": "Leafy Greens",
+    "commodity_code": "LEAFY_GREENS",
+    "category": "Produce"
+  },
+  {
+    "commodity": "Tomatoes",
+    "commodity_code": "TOMATOES",
+    "category": "Produce"
+  },
+  {
+    "commodity": "Poultry, Raw",
+    "commodity_code": "POULTRY_RAW",
+    "category": "Meat & Poultry"
+  },
+  {
+    "commodity": "Beef, Raw",
+    "commodity_code": "BEEF_RAW",
+    "category": "Meat & Poultry"
+  },
+  {
+    "commodity": "Seafood, Raw",
+    "commodity_code": "SEAFOOD_RAW",
+    "category": "Seafood"
+  },
+  {
+    "commodity": "Eggs, Shell",
+    "commodity_code": "EGGS_SHELL",
+    "category": "Eggs"
+  }
+]

@@ -1,0 +1,84 @@
+{
+  "app": {
+    "title": "RRM-FT Assistant (FSMA 204)",
+    "subtitle": "FDA Risk Ranking Model for Food Tracing",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information"
+  },
+  "search": {
+    "placeholder": "Search commodities...",
+    "noResults": "No commodities found",
+    "clear": "Clear search"
+  },
+  "commodity": {
+    "title": "Commodity",
+    "select": "Select a commodity",
+    "selected": "Selected commodity",
+    "hazards": "Hazards",
+    "noHazards": "No hazards found for this commodity"
+  },
+  "hazard": {
+    "title": "Hazard",
+    "type": "Hazard Type",
+    "score": "Risk Score",
+    "rank": "Rank",
+    "details": "Details"
+  },
+  "project": {
+    "title": "Project",
+    "new": "New Project",
+    "open": "Open Project",
+    "save": "Save Project",
+    "saveAs": "Save As...",
+    "export": "Export Results",
+    "name": "Project Name",
+    "description": "Description",
+    "created": "Created",
+    "modified": "Modified",
+    "files": "Files",
+    "activities": "Activities"
+  },
+  "file": {
+    "upload": "Upload File",
+    "download": "Download",
+    "attach": "Attach File",
+    "remove": "Remove",
+    "type": "File Type",
+    "size": "Size",
+    "date": "Date"
+  },
+  "activity": {
+    "title": "Activity Log",
+    "add": "Add Activity",
+    "type": "Type",
+    "description": "Description",
+    "timestamp": "Timestamp",
+    "user": "User"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalid": "Invalid value",
+    "loading": "Validating..."
+  },
+  "buttons": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "close": "Close",
+    "apply": "Apply",
+    "reset": "Reset",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View"
+  },
+  "errors": {
+    "dataLoad": "Failed to load FDA data",
+    "fileRead": "Failed to read file",
+    "fileWrite": "Failed to write file",
+    "validation": "Validation error",
+    "network": "Network error",
+    "unknown": "Unknown error occurred"
+  }
+}

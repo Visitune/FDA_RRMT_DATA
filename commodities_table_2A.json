@@ -1,0 +1,294 @@
+{
+  "table_name": "Commodities Table 2A",
+  "description": "Risk Ranking Model - Table 2A: Commodity Risk Factors",
+  "version": "1.0",
+  "last_updated": "2024-08-13",
+  "data": [
+    {
+      "commodity": "Cheese, made from pasteurized milk, fresh soft or soft unripened",
+      "code": "010101",
+      "risk_factors": {
+        "contamination_frequency": 0.15,
+        "severity": 0.75,
+        "traceability_difficulty": 0.60,
+        "consumer_exposure": 0.45,
+        "economic_impact": 0.55
+      },
+      "risk_score": 0.50,
+      "risk_level": "Medium"
+    },
+    {
+      "commodity": "Cheese, made from unpasteurized milk, other than hard cheese",
+      "code": "010102",
+      "risk_factors": {
+        "contamination_frequency": 0.35,
+        "severity": 0.85,
+        "traceability_difficulty": 0.65,
+        "consumer_exposure": 0.40,
+        "economic_impact": 0.60
+      },
+      "risk_score": 0.57,
+      "risk_level": "Medium-High"
+    },
+    {
+      "commodity": "Finfish, histamine producing species",
+      "code": "020101",
+      "risk_factors": {
+        "contamination_frequency": 0.25,
+        "severity": 0.70,
+        "traceability_difficulty": 0.75,
+        "consumer_exposure": 0.55,
+        "economic_impact": 0.65
+      },
+      "risk_score": 0.58,
+      "risk_level": "Medium-High"
+    },
+    {
+      "commodity": "Finfish, species not associated with histamine or ciguatoxin",
+      "code": "020102",
+      "risk_factors": {
+        "contamination_frequency": 0.10,
+        "severity": 0.60,
+        "traceability_difficulty": 0.70,
+        "consumer_exposure": 0.50,
+        "economic_impact": 0.55
+      },
+      "risk_score": 0.49,
+      "risk_level": "Medium"
+    },
+    {
+      "commodity": "Finfish, species potentially contaminated with ciguatoxin",
+      "code": "020103",
+      "risk_factors": {
+        "contamination_frequency": 0.20,
+        "severity": 0.80,
+        "traceability_difficulty": 0.80,
+        "consumer_exposure": 0.35,
+        "economic_impact": 0.70
+      },
+      "risk_score": 0.57,
+      "risk_level": "Medium-High"
+    },
+    {
+      "commodity": "Smoked finfish",
+      "code": "020201",
+      "risk_factors": {
+        "contamination_frequency": 0.15,
+        "severity": 0.75,
+        "traceability_difficulty": 0.55,
+        "consumer_exposure": 0.40,
+        "economic_impact": 0.50
+      },
+      "risk_score": 0.47,
+      "risk_level": "Medium"
+    },
+    {
+      "commodity": "Molluscan shellfish, bivalves",
+      "code": "020301",
+      "risk_factors": {
+        "contamination_frequency": 0.30,
+        "severity": 0.85,
+        "traceability_difficulty": 0.85,
+        "consumer_exposure": 0.60,
+        "economic_impact": 0.75
+      },
+      "risk_score": 0.67,
+      "risk_level": "High"
+    },
+    {
+      "commodity": "Crustaceans",
+      "code": "020401",
+      "risk_factors": {
+        "contamination_frequency": 0.20,
+        "severity": 0.70,
+        "traceability_difficulty": 0.65,
+        "consumer_exposure": 0.55,
+        "economic_impact": 0.60
+      },
+      "risk_score": 0.54,
+      "risk_level": "Medium"
+    },
+    {
+      "commodity": "Leafy greens",
+      "code": "030101",
+      "risk_factors": {
+        "contamination_frequency": 0.40,
+        "severity": 0.80,
+        "traceability_difficulty": 0.70,
+        "consumer_exposure": 0.75,
+        "economic_impact": 0.65
+      },
+      "risk_score": 0.66,
+      "risk_level": "High"
+    },
+    {
+      "commodity": "Leafy greens, fresh-cut",
+      "code": "030102",
+      "risk_factors": {
+        "contamination_frequency": 0.45,
+        "severity": 0.85,
+        "traceability_difficulty": 0.75,
+        "consumer_exposure": 0.80,
+        "economic_impact": 0.70
+      },
+      "risk_score": 0.71,
+      "risk_level": "High"
+    },
+    {
+      "commodity": "Vegetables other than leafy greens, fresh-cut",
+      "code": "030103",
+      "risk_factors": {
+        "contamination_frequency": 0.35,
+        "severity": 0.75,
+        "traceability_difficulty": 0.65,
+        "consumer_exposure": 0.70,
+        "economic_impact": 0.60
+      },
+      "risk_score": 0.61,
+      "risk_level": "Medium-High"
+    },
+    {
+      "commodity": "Sprouts",
+      "code": "030104",
+      "risk_factors": {
+        "contamination_frequency": 0.50,
+        "severity": 0.90,
+        "traceability_difficulty": 0.80,
+        "consumer_exposure": 0.65,
+        "economic_impact": 0.70
+      },
+      "risk_score": 0.71,
+      "risk_level": "High"
+    },
+    {
+      "commodity": "Tomatoes",
+      "code": "030105",
+      "risk_factors": {
+        "contamination_frequency": 0.30,
+        "severity": 0.75,
+        "traceability_difficulty": 0.60,
+        "consumer_exposure": 0.70,
+        "economic_impact": 0.55
+      },
+      "risk_score": 0.58,
+      "risk_level": "Medium-High"
+    },
+    {
+      "commodity": "Peppers",
+      "code": "030106",
+      "risk_factors": {
+        "contamination_frequency": 0.35,
+        "severity": 0.80,
+        "traceability_difficulty": 0.65,
+        "consumer_exposure": 0.65,
+        "economic_impact": 0.60
+      },
+      "risk_score": 0.61,
+      "risk_level": "Medium-High"
+    },
+    {
+      "commodity": "Cucumbers",
+      "code": "030107",
+      "risk_factors": {
+        "contamination_frequency": 0.25,
+        "severity": 0.70,
+        "traceability_difficulty": 0.55,
+        "consumer_exposure": 0.60,
+        "economic_impact": 0.50
+      },
+      "risk_score": 0.52,
+      "risk_level": "Medium"
+    },
+    {
+      "commodity": "Melons",
+      "code": "030201",
+      "risk_factors": {
+        "contamination_frequency": 0.30,
+        "severity": 0.75,
+        "traceability_difficulty": 0.60,
+        "consumer_exposure": 0.65,
+        "economic_impact": 0.55
+      },
+      "risk_score": 0.57,
+      "risk_level": "Medium-High"
+    },
+    {
+      "commodity": "Tropical tree fruits",
+      "code": "030202",
+      "risk_factors": {
+        "contamination_frequency": 0.20,
+        "severity": 0.70,
+        "traceability_difficulty": 0.65,
+        "consumer_exposure": 0.55,
+        "economic_impact": 0.50
+      },
+      "risk_score": 0.52,
+      "risk_level": "Medium"
+    },
+    {
+      "commodity": "Fruits, fresh-cut",
+      "code": "030203",
+      "risk_factors": {
+        "contamination_frequency": 0.35,
+        "severity": 0.75,
+        "traceability_difficulty": 0.65,
+        "consumer_exposure": 0.75,
+        "economic_impact": 0.60
+      },
+      "risk_score": 0.62,
+      "risk_level": "Medium-High"
+    },
+    {
+      "commodity": "Herbs, fresh",
+      "code": "030301",
+      "risk_factors": {
+        "contamination_frequency": 0.30,
+        "severity": 0.75,
+        "traceability_difficulty": 0.70,
+        "consumer_exposure": 0.50,
+        "economic_impact": 0.55
+      },
+      "risk_score": 0.56,
+      "risk_level": "Medium-High"
+    },
+    {
+      "commodity": "RTE deli salads",
+      "code": "040101",
+      "risk_factors": {
+        "contamination_frequency": 0.40,
+        "severity": 0.80,
+        "traceability_difficulty": 0.70,
+        "consumer_exposure": 0.70,
+        "economic_impact": 0.65
+      },
+      "risk_score": 0.65,
+      "risk_level": "High"
+    },
+    {
+      "commodity": "Nut butters",
+      "code": "040201",
+      "risk_factors": {
+        "contamination_frequency": 0.25,
+        "severity": 0.85,
+        "traceability_difficulty": 0.60,
+        "consumer_exposure": 0.60,
+        "economic_impact": 0.70
+      },
+      "risk_score": 0.60,
+      "risk_level": "Medium-High"
+    },
+    {
+      "commodity": "Shell eggs",
+      "code": "040301",
+      "risk_factors": {
+        "contamination_frequency": 0.20,
+        "severity": 0.80,
+        "traceability_difficulty": 0.55,
+        "consumer_exposure": 0.75,
+        "economic_impact": 0.65
+      },
+      "risk_score": 0.59,
+      "risk_level": "Medium-High"
+    }
+  ]
+}

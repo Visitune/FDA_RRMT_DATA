@@ -1,0 +1,137 @@
+{
+  "version": "2024.1",
+  "generated": "2024-08-13T17:00:00Z",
+  "sources": [
+    {
+      "path": "commodities_table_2A.json",
+      "description": "Commodity risk scores and categories",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "ftl_table_1A.json",
+      "description": "Food Traceability List (FTL) status",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__cheese__made_from_pasteurized_milk___fresh_soft_or_soft_unripened.json",
+      "description": "Hazard pairs for Cheese (made from pasteurized milk), fresh soft or soft unripened",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__cheese__made_from_unpasteurized_milk___other_than_hard_cheese.json",
+      "description": "Hazard pairs for Cheese (made from unpasteurized milk), other than hard cheese",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__crustaceans.json",
+      "description": "Hazard pairs for Crustaceans",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__cucumbers.json",
+      "description": "Hazard pairs for Cucumbers",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__finfish__histamine_producing_species.json",
+      "description": "Hazard pairs for Finfish (histamine-producing species)",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__finfish__species_not_associated_with_histamine_or_ciguatoxin.json",
+      "description": "Hazard pairs for Finfish (species not associated with histamine or ciguatoxin)",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__finfish__species_potentially_contaminated_with_ciguatoxin.json",
+      "description": "Hazard pairs for Finfish (species potentially contaminated with ciguatoxin)",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__fruits__fresh_cut_.json",
+      "description": "Hazard pairs for Fruits (fresh-cut)",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__herbs__fresh_.json",
+      "description": "Hazard pairs for Herbs (fresh)",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__leafy_greens.json",
+      "description": "Hazard pairs for Leafy greens",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__leafy_greens__fresh_cut_.json",
+      "description": "Hazard pairs for Leafy greens (fresh-cut)",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__melons.json",
+      "description": "Hazard pairs for Melons",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__molluscan_shellfish__bivalves.json",
+      "description": "Hazard pairs for Molluscan shellfish (bivalves)",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__nut_butters.json",
+      "description": "Hazard pairs for Nut butters",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__peppers.json",
+      "description": "Hazard pairs for Peppers",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__rte_deli_salads.json",
+      "description": "Hazard pairs for RTE deli salads",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__shell_eggs.json",
+      "description": "Hazard pairs for Shell eggs",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__smoked_finfish.json",
+      "description": "Hazard pairs for Smoked finfish",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__sprouts.json",
+      "description": "Hazard pairs for Sprouts",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__tomatoes.json",
+      "description": "Hazard pairs for Tomatoes",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__tropical_tree_fruits.json",
+      "description": "Hazard pairs for Tropical tree fruits",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "en/pairs_table_2B/__vegetables_other_than_leafy_greens__fresh_cut_.json",
+      "description": "Hazard pairs for Vegetables other than leafy greens (fresh-cut)",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "i18n/en.json",
+      "description": "English translations",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "i18n/fr.json",
+      "description": "French translations",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "checksums": "checksums.json"
+}

@@ -1,0 +1,140 @@
+{
+  "table_name": "FTL Table 1A",
+  "description": "Food Tracing List - Table 1A: Food Categories and Subcategories",
+  "version": "1.0",
+  "last_updated": "2024-08-13",
+  "data": [
+    {
+      "category": "Dairy and Egg Products",
+      "subcategory": "Cheese",
+      "commodity": "Cheese, made from pasteurized milk, fresh soft or soft unripened",
+      "code": "010101"
+    },
+    {
+      "category": "Dairy and Egg Products",
+      "subcategory": "Cheese",
+      "commodity": "Cheese, made from unpasteurized milk, other than hard cheese",
+      "code": "010102"
+    },
+    {
+      "category": "Seafood",
+      "subcategory": "Finfish",
+      "commodity": "Finfish, histamine producing species",
+      "code": "020101"
+    },
+    {
+      "category": "Seafood",
+      "subcategory": "Finfish",
+      "commodity": "Finfish, species not associated with histamine or ciguatoxin",
+      "code": "020102"
+    },
+    {
+      "category": "Seafood",
+      "subcategory": "Finfish",
+      "commodity": "Finfish, species potentially contaminated with ciguatoxin",
+      "code": "020103"
+    },
+    {
+      "category": "Seafood",
+      "subcategory": "Smoked Seafood",
+      "commodity": "Smoked finfish",
+      "code": "020201"
+    },
+    {
+      "category": "Seafood",
+      "subcategory": "Shellfish",
+      "commodity": "Molluscan shellfish, bivalves",
+      "code": "020301"
+    },
+    {
+      "category": "Seafood",
+      "subcategory": "Crustaceans",
+      "commodity": "Crustaceans",
+      "code": "020401"
+    },
+    {
+      "category": "Produce",
+      "subcategory": "Vegetables",
+      "commodity": "Leafy greens",
+      "code": "030101"
+    },
+    {
+      "category": "Produce",
+      "subcategory": "Vegetables",
+      "commodity": "Leafy greens, fresh-cut",
+      "code": "030102"
+    },
+    {
+      "category": "Produce",
+      "subcategory": "Vegetables",
+      "commodity": "Vegetables other than leafy greens, fresh-cut",
+      "code": "030103"
+    },
+    {
+      "category": "Produce",
+      "subcategory": "Vegetables",
+      "commodity": "Sprouts",
+      "code": "030104"
+    },
+    {
+      "category": "Produce",
+      "subcategory": "Vegetables",
+      "commodity": "Tomatoes",
+      "code": "030105"
+    },
+    {
+      "category": "Produce",
+      "subcategory": "Vegetables",
+      "commodity": "Peppers",
+      "code": "030106"
+    },
+    {
+      "category": "Produce",
+      "subcategory": "Vegetables",
+      "commodity": "Cucumbers",
+      "code": "030107"
+    },
+    {
+      "category": "Produce",
+      "subcategory": "Fruits",
+      "commodity": "Melons",
+      "code": "030201"
+    },
+    {
+      "category": "Produce",
+      "subcategory": "Fruits",
+      "commodity": "Tropical tree fruits",
+      "code": "030202"
+    },
+    {
+      "category": "Produce",
+      "subcategory": "Fruits",
+      "commodity": "Fruits, fresh-cut",
+      "code": "030203"
+    },
+    {
+      "category": "Produce",
+      "subcategory": "Herbs",
+      "commodity": "Herbs, fresh",
+      "code": "030301"
+    },
+    {
+      "category": "Other Foods",
+      "subcategory": "Prepared Foods",
+      "commodity": "RTE deli salads",
+      "code": "040101"
+    },
+    {
+      "category": "Other Foods",
+      "subcategory": "Nuts and Seeds",
+      "commodity": "Nut butters",
+      "code": "040201"
+    },
+    {
+      "category": "Other Foods",
+      "subcategory": "Eggs",
+      "commodity": "Shell eggs",
+      "code": "040301"
+    }
+  ]
+}

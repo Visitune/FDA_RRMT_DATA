@@ -1,0 +1,84 @@
+{
+  "app": {
+    "title": "Assistant RRM-FT (FSMA 204)",
+    "subtitle": "Modèle de classement des risques de la FDA pour le traçage des aliments",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "warning": "Avertissement",
+    "info": "Information"
+  },
+  "search": {
+    "placeholder": "Rechercher des produits...",
+    "noResults": "Aucun produit trouvé",
+    "clear": "Effacer la recherche"
+  },
+  "commodity": {
+    "title": "Produit",
+    "select": "Sélectionner un produit",
+    "selected": "Produit sélectionné",
+    "hazards": "Dangers",
+    "noHazards": "Aucun danger trouvé pour ce produit"
+  },
+  "hazard": {
+    "title": "Danger",
+    "type": "Type de danger",
+    "score": "Score de risque",
+    "rank": "Rang",
+    "details": "Détails"
+  },
+  "project": {
+    "title": "Projet",
+    "new": "Nouveau projet",
+    "open": "Ouvrir un projet",
+    "save": "Enregistrer le projet",
+    "saveAs": "Enregistrer sous...",
+    "export": "Exporter les résultats",
+    "name": "Nom du projet",
+    "description": "Description",
+    "created": "Créé",
+    "modified": "Modifié",
+    "files": "Fichiers",
+    "activities": "Activités"
+  },
+  "file": {
+    "upload": "Téléverser un fichier",
+    "download": "Télécharger",
+    "attach": "Joindre un fichier",
+    "remove": "Supprimer",
+    "type": "Type de fichier",
+    "size": "Taille",
+    "date": "Date"
+  },
+  "activity": {
+    "title": "Journal d'activité",
+    "add": "Ajouter une activité",
+    "type": "Type",
+    "description": "Description",
+    "timestamp": "Horodatage",
+    "user": "Utilisateur"
+  },
+  "validation": {
+    "required": "Ce champ est requis",
+    "invalid": "Valeur invalide",
+    "loading": "Validation..."
+  },
+  "buttons": {
+    "ok": "OK",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "apply": "Appliquer",
+    "reset": "Réinitialiser",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "view": "Voir"
+  },
+  "errors": {
+    "dataLoad": "Échec du chargement des données FDA",
+    "fileRead": "Échec de la lecture du fichier",
+    "fileWrite": "Échec de l'écriture du fichier",
+    "validation": "Erreur de validation",
+    "network": "Erreur réseau",
+    "unknown": "Une erreur inconnue s'est produite"
+  }
+}
