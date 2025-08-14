@@ -342,21 +342,45 @@ class RRMFTApp {
     this.loadPairs(code);
   }
 
+  commodityToFilename(code) {
+    // Map commodity codes to actual filename formats
+    const filenameMap = {
+      '010101': '__cheese__made_from_pasteurized_milk___fresh_soft_or_soft_unripened.json',
+      '010102': '__cheese__made_from_unpasteurized_milk___other_than_hard_cheese.json',
+      '020101': '__finfish__histamine_producing_species.json',
+      '020102': '__finfish__species_not_associated_with_histamine_or_ciguatoxin.json',
+      '020103': '__finfish__species_potentially_contaminated_with_ciguatoxin.json',
+      '020201': '__smoked_finfish.json',
+      '020301': '__molluscan_shellfish__bivalves.json',
+      '020401': '__crustaceans.json',
+      '030101': '__leafy_greens.json',
+      '030102': '__leafy_greens__fresh_cut_.json',
+      '030103': '__vegetables_other_than_leafy_greens__fresh_cut_.json',
+      '030104': '__sprouts.json',
+      '030105': '__tomatoes.json',
+      '030106': '__peppers.json',
+      '030107': '__cucumbers.json',
+      '030201': '__melons.json',
+      '030202': '__tropical_tree_fruits.json',
+      '030203': '__fruits__fresh_cut_.json',
+      '030301': '__herbs__fresh_.json',
+      '040101': '__rte_deli_salads.json',
+      '040201': '__nut_butters.json',
+      '040301': '__shell_eggs.json'
+    };
+    
+    return filenameMap[code] || `${code}.json`;
+  }
+
   async loadPairs(code) {
     try {
-      // Get commodity data to construct correct filename
-      if (!this.state.data.twoA || !this.state.data.twoA.data) {
+      if (!this.state.data.twoA) {
         throw new Error('Commodities data not loaded');
       }
       
-      const commodityData = this.state.data.twoA.data.find(item => item.code === code);
-      if (!commodityData) {
-        throw new Error(`Commodity data not found for code: ${code}`);
-      }
-      
-      // Convert commodity name to filename format
-      const filename = this.commodityToFilename(commodityData.commodity);
-      const pairsPath = `en/pairs_table_2B/${filename}.json`;
+      // Use the mapped filename
+      const filename = this.commodityToFilename(code);
+      const pairsPath = `en/pairs_table_2B/${filename}`;
       
       this.log(`Loading pairs from: ${pairsPath}`);
       const { json: pairs } = await this.fetchAndVerify(pairsPath);
@@ -368,21 +392,9 @@ class RRMFTApp {
       this.elements.aggScore.textContent = `Max score: ${maxScore}`;
       
     } catch (error) {
-      this.log(`Error loading pairs for ${code}: ${error.message}`, 'error');
+      this.log(`Error loading pairs for ${code}: ${error.message}`, 'error`);
       this.displayPairs({});
     }
-  }
-
-  commodityToFilename(commodityName) {
-    // Convert commodity name to filename format used in pairs_table_2B
-    // Based on actual file naming pattern: __commodity_name___.json
-    return '__' + commodityName
-      .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, '') // Remove special characters
-      .replace(/\s+/g, '_') // Replace spaces with underscores
-      .replace(/_+/g, '_') // Normalize multiple underscores
-      .replace(/^_+|_+$/g, '') // Trim leading/trailing underscores
-      + '___';
   }
 
   displayPairs(pairs) {
