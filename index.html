@@ -4,10 +4,12 @@
   <meta charset="utf-8" />
   <title>RRM-FT Assistant — FSMA 204 (FR/EN)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- Pour sauvegarder/ouvrir les projets .RRM (zip local) -->
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
   <style>
     :root{--bg:#0b0c10;--panel:#151820;--muted:#8ea0b3;--text:#eaf2f8;--acc:#37b24d;--warn:#f59f00;--err:#fa5252}
-    *{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial}
     .wrap{max-width:1100px;margin:32px auto;padding:0 16px}
     header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
     h1{margin:0;font-size:20px}
@@ -44,7 +46,7 @@
           <span id="statusBadge" class="pill warn">loading…</span>
           <small id="counts" class="muted right">–</small>
         </div>
-        <small class="muted">L’app charge 2A/1A/2B depuis le repo → vérifie SHA-256 si <code>manifest.json</code> / <code>metadata/checksums.json</code> sont présents. Aucune note n’est recalculée.</small>
+        <small class="muted">L’app charge 2A/1A/2B depuis le repo → vérifie SHA-256 si <code>manifest.json</code> / <code>metadata/checksums.json</code> sont présents. Aucune note n’est recalculée (source FDA).</small>
       </div>
       <div class="col">
         <label>Recherche / sélection denrée</label>
@@ -150,12 +152,35 @@ async function fetchFirst(paths){ // essaie en cascade
   throw lastErr || new Error("Aucun chemin accessible: "+paths.join(", "));
 }
 
+/* ========= Normalise les formats 2A / 1A (tableau ou objet) ========= */
+function normalizeTwoA(data){
+  if (!data) return { commodities: [] };
+  if (Array.isArray(data)) return { commodities: data }; // cas: tableau brut
+  if (data.commodities) return data;
+  if (data.items) return { commodities: data.items };
+  if (data.data) return { commodities: data.data };
+  const vals = Object.values(data);
+  if (Array.isArray(vals[0])) return { commodities: vals[0] };
+  return { commodities: [] };
+}
+function normalizeOneA(data){
+  if (!data) return { items: [] };
+  if (Array.isArray(data)) return { items: data };       // cas: tableau brut
+  if (data.items) return data;
+  if (data.commodities) return { items: data.commodities };
+  if (data.data) return { items: data.data };
+  const vals = Object.values(data);
+  if (Array.isArray(vals[0])) return { items: vals[0] };
+  return { items: [] };
+}
+
 /* ========= Chargement + intégrité ========= */
 async function loadAll(){
-  $("#statusBadge").textContent="loading…"; $("#statusBadge").className="pill warn";
-  // manifest (facultatif mais préférable)
+  const badge = $("#statusBadge");
+  badge.textContent="loading…"; badge.className="pill warn";
+
+  // manifest / checksums (facultatifs)
   try{ state.manifest = (await fetchFirst(state.paths.manifest)).json; }catch{ state.manifest = null; }
-  // checksums (facultatif)
   try{ state.checksums = (await fetchFirst(state.paths.checks)).json; }catch{ state.checksums = null; }
 
   // 2A / 1A
@@ -163,30 +188,31 @@ async function loadAll(){
   const oneAres = await fetchFirst(state.paths.oneA);
   await verifyIfPossible(twoAres.path, twoAres.ab);
   await verifyIfPossible(oneAres.path, oneAres.ab);
-  state.twoA = twoAres.json; state.oneA = oneAres.json;
+
+  // normalisation (accepte tableaux bruts)
+  state.twoA = normalizeTwoA(twoAres.json);
+  state.oneA = normalizeOneA(oneAres.json);
 
   // i18n FR (optionnel)
   try{
     const fr = await fetchFirst(state.paths.i18nFR);
-    state.i18n = fr.json || state.i18n;
+    if(fr.json && typeof fr.json==="object") state.i18n = fr.json;
   }catch{}
 
   // compteurs
   const n2A = state.twoA?.commodities?.length || 0;
   const n1A = state.oneA?.items?.length || 0;
-  const n2B = (state.manifest?.sources||[]).filter(s=>String(s.path||"").includes("pairs_table_2B/")).length
-           || "n/a";
+  const n2B = (state.manifest?.sources||[]).filter(s=>String(s.path||"").includes("pairs_table_2B/")).length || "n/a";
   $("#counts").textContent = `${n1A} FTL • ${n2A} commodities • ${n2B} files 2B`;
 
-  $("#statusBadge").textContent = "intégrité OK (si manifest/checksums présents)";
-  $("#statusBadge").className = "pill ok";
+  badge.textContent = "intégrité OK (si manifest/checksums présents)";
+  badge.className = "pill ok";
 
   populateCommodities();
   log("Données FDA chargées.");
 }
 
 async function verifyIfPossible(path, ab){
-  // compare hash au manifest/checksums si présence; sinon ne bloque pas
   const digest = await sha256(ab);
   const fromManifest = state.manifest?.sources?.find(s=>s.path===path)?.sha256;
   const fromChecks = state.checksums?.[path];
@@ -204,13 +230,21 @@ const tHaz = en => state.lang==="fr" ? (state.i18n.hazard?.[en]||en) : en;
 function populateCommodities(){
   const sel = $("#commoditySelect"); const q = ($("#q").value||"").toLowerCase();
   const items = (state.twoA?.commodities||[])
-    .filter(r => !q || [r.commodity,r.category].some(x=>x.toLowerCase().includes(q)))
-    .sort((a,b)=>a.commodity.localeCompare(b.commodity));
+    .map(r => ({ // tolère des jeux où les clés diffèrent
+      category: r.category ?? r.commodity_category ?? r.CommodityCategory ?? "",
+      commodity: cleanLabel(r.commodity ?? r.Commodity ?? ""),
+      onFTL: r.onFTL ?? r.on_ftl ?? r.ftl ?? false,
+      riskScoreCommodity: r.riskScoreCommodity ?? r.agg_score ?? r.aggScore ?? r.risk ?? r.score
+    }))
+    .filter(r => r.commodity && (!q || [r.commodity,r.category].some(x=>String(x).toLowerCase().includes(q))))
+    .sort((a,b)=>String(a.commodity).localeCompare(String(b.commodity)));
   sel.innerHTML="";
   for(const r of items){
     const o = document.createElement("option");
     o.value = JSON.stringify([r.category,r.commodity]);
     o.textContent = `${tCom(r.commodity)}${r.onFTL?" [FTL]":""} — ${tCat(r.category)}`;
+    o.dataset.agg = r.riskScoreCommodity ?? "";
+    o.dataset.ftl = r.onFTL ? "1" : "0";
     sel.appendChild(o);
   }
   if(items.length){ sel.selectedIndex=0; onCommodityChange(); }
@@ -226,11 +260,18 @@ async function onCommodityChange(){
   const res = await fetchFirst(pairPaths); // essaye en/ puis racine
   await verifyIfPossible(res.path, res.ab);
   const data = res.json || {};
-  state.current.pairs = data.pairs || [];
+  const pairs = Array.isArray(data) ? data : (data.pairs || []);
+  state.current.pairs = pairs.map(p=>({
+    hazard: p.hazard ?? p.Hazard ?? p.hazard_name ?? p.hazardName ?? "",
+    C1:+p.C1, C2:+p.C2, C3:+p.C3, C4:+p.C4, C5:+p.C5, C6:+p.C6, C7:+p.C7,
+    riskScorePair: +(p.riskScorePair ?? p.pairRiskScore ?? p.risk ?? p.score)
+  })).filter(p=>p.hazard);
 
-  const r2a = state.twoA.commodities.find(r=>r.category===category && r.commodity===commodity);
-  $("#ftlBadge").className = `pill ${r2a?.onFTL?"ok": "hidden"}`; $("#ftlBadge").textContent = r2a?.onFTL?"FTL":"";
-  $("#aggScore").textContent = r2a ? `score agrégé: ${r2a.riskScoreCommodity}` : "";
+  const opt = $("#commoditySelect").selectedOptions[0];
+  const onFTL = opt?.dataset?.ftl==="1";
+  const agg   = opt?.dataset?.agg ?? "";
+  $("#ftlBadge").className = `pill ${onFTL?"ok": "hidden"}`; $("#ftlBadge").textContent = onFTL?"FTL":"";
+  $("#aggScore").textContent = agg ? `aggregated score: ${agg}` : "";
   $("#catName").textContent = `${tCat(category)} • ${tCom(commodity)}`;
 
   renderPairs();
