@@ -1,8 +1,8 @@
 name: Fix & QA RRMFT repo
 on:
-  workflow_dispatch: {}   # tu le lanceras à la main
+  workflow_dispatch: {}   # lance-le à la main via l’onglet Actions
 permissions:
-  contents: write         # autorise le workflow à pousser les correctifs
+  contents: write         # autorise le workflow à pousser sur main
 
 jobs:
   fix:
@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Run one-shot fixer (inline Node)
+      - name: One-shot fixer (déplace/normalise et reconstruit manifest + checksums)
         run: |
           node - <<'NODE'
           import fs from "node:fs";
@@ -23,55 +23,70 @@ jobs:
           import crypto from "node:crypto";
 
           const root = process.cwd();
+          const ensureDir = p => fs.mkdirSync(p, { recursive: true });
+          const sha256 = p => crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex");
+          const readJSON = p => JSON.parse(fs.readFileSync(p, "utf-8"));
+          const writeJSON = (p, o) => { ensureDir(path.dirname(p)); fs.writeFileSync(p, JSON.stringify(o, null, 2)); };
+
           const MANIFEST = path.join(root, "manifest.json");
-          const CHECKS_OLD = path.join(root, "checksums.json");
+          if (!fs.existsSync(MANIFEST)) throw new Error("manifest.json introuvable");
+
+          const EN_DIR = path.join(root, "en");
+          const PAIRS_EN = path.join(EN_DIR, "pairs_table_2B");
+          const PAIRS_ROOT = path.join(root, "pairs_table_2B"); // doublon éventuel
           const META_DIR = path.join(root, "metadata");
+          const CHECKS_ROOT = path.join(root, "checksums.json");
           const CHECKS = path.join(META_DIR, "checksums.json");
-          const PAIRS_ROOT = path.join(root, "pairs_table_2B");      // doublon à supprimer
-          const PAIRS_EN   = path.join(root, "en", "pairs_table_2B"); // source unique
 
-          function sha256(p){
-            const buf = fs.readFileSync(p);
-            return crypto.createHash("sha256").update(buf).digest("hex");
+          // 0) répertoires essentiels
+          ensureDir(EN_DIR);
+          ensureDir(PAIRS_EN);
+          ensureDir(META_DIR);
+
+          // 1) déplacer 2A/1A racine -> en/
+          const ROOT_TWOA = path.join(root, "commodities_table_2A.json");
+          const ROOT_ONEA = path.join(root, "ftl_table_1A.json");
+          if (fs.existsSync(ROOT_TWOA) && !fs.existsSync(path.join(EN_DIR, "commodities_table_2A.json"))) {
+            fs.renameSync(ROOT_TWOA, path.join(EN_DIR, "commodities_table_2A.json"));
+            console.log("Déplacé: commodities_table_2A.json -> en/");
           }
-          function readJSON(p){ return JSON.parse(fs.readFileSync(p, "utf-8")); }
-          function writeJSON(p, o){ fs.mkdirSync(path.dirname(p), {recursive:true}); fs.writeFileSync(p, JSON.stringify(o, null, 2)); }
+          if (fs.existsSync(ROOT_ONEA) && !fs.existsSync(path.join(EN_DIR, "ftl_table_1A.json"))) {
+            fs.renameSync(ROOT_ONEA, path.join(EN_DIR, "ftl_table_1A.json"));
+            console.log("Déplacé: ftl_table_1A.json -> en/");
+          }
 
-          if(!fs.existsSync(MANIFEST)) throw new Error("manifest.json introuvable à la racine");
-
-          // 1) Supprimer le dossier doublon à la racine si un en/… existe
+          // 2) supprimer le doublon pairs_table_2B à la racine (si le dossier en/ existe)
           if (fs.existsSync(PAIRS_ROOT) && fs.existsSync(PAIRS_EN)) {
-            console.log("Removing duplicate pairs_table_2B at repo root…");
             fs.rmSync(PAIRS_ROOT, { recursive: true, force: true });
+            console.log("Supprimé: pairs_table_2B/ à la racine (doublon)");
           }
 
-          // 2) Déplacer checksums.json -> metadata/checksums.json (si besoin)
-          if (fs.existsSync(CHECKS_OLD)) {
-            fs.mkdirSync(META_DIR, { recursive: true });
-            fs.renameSync(CHECKS_OLD, CHECKS);
-            console.log("Moved checksums.json -> metadata/checksums.json");
+          // 3) checksums.json -> metadata/checksums.json
+          if (fs.existsSync(CHECKS_ROOT)) {
+            fs.renameSync(CHECKS_ROOT, CHECKS);
+            console.log("Déplacé: checksums.json -> metadata/checksums.json");
           }
 
-          // 3) Ne garder dans manifest que les chemins sous en/...
+          // 4) reconstruire manifest: ne garder que des paths sous en/
           const manifest = readJSON(MANIFEST);
-          const srcs = (manifest.sources||[]).filter(s => s.path && s.path.startsWith("en/"));
-          manifest.sources = srcs;
+          const onlyEn = (manifest.sources || []).filter(s => s.path && s.path.startsWith("en/"));
+          manifest.sources = onlyEn;
 
-          // 4) Recalculer tous les SHA-256
+          // 5) recalculer tous les sha256
           for (const s of manifest.sources) {
-            const fpath = path.join(root, s.path);
-            if (!fs.existsSync(fpath)) throw new Error(`Fichier manquant (manifest): ${s.path}`);
-            s.sha256 = sha256(fpath);
+            const f = path.join(root, s.path);
+            if (!fs.existsSync(f)) throw new Error(`Fichier manquant (manifest): ${s.path}`);
+            s.sha256 = sha256(f);
           }
           writeJSON(MANIFEST, manifest);
 
-          // 5) Écrire metadata/checksums.json (incluant le hash du manifest)
+          // 6) (ré)écrire metadata/checksums.json (incluant hash du manifest)
           const checks = {};
           for (const s of manifest.sources) checks[s.path] = s.sha256;
           checks["manifest.json"] = sha256(MANIFEST);
           writeJSON(CHECKS, checks);
 
-          console.log("OK: manifest.json & metadata/checksums.json régénérés.");
+          console.log("OK: structure normalisée + manifest/checksums régénérés.");
           NODE
 
       - name: Commit & push changes (if any)
@@ -81,7 +96,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if [ -n "$(git status --porcelain)" ]; then
             git add -A
-            git commit -m "chore: normalize data under en/, move checksums to metadata/, rebuild manifest & checksums"
+            git commit -m "chore: normalize layout under en/, move checksums to metadata/, rebuild manifest & checksums"
             git push
             echo "Changes pushed."
           else
@@ -95,7 +110,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
-      - name: QA (manifest, checksums, 2A/1A/2B, critères)
+      - name: QA (manifest, checksums, 2A/1A/2B, critères C1..C7)
         run: |
           python - <<'PY'
           import json, os, sys, hashlib, glob
@@ -107,10 +122,9 @@ jobs:
           def load(p):
               with open(p,'r',encoding='utf-8') as f: return json.load(f)
           errs=[]
+          # 1) manifest & checksums
           man = load('manifest.json')
           checks = load('metadata/checksums.json') if os.path.exists('metadata/checksums.json') else {}
-
-          # 1) manifest & checksums
           for s in man.get('sources', []):
               path=s['path']
               if not os.path.exists(path): errs.append(f"[MANIFEST] Fichier manquant: {path}"); continue
@@ -119,8 +133,7 @@ jobs:
                   errs.append(f"[SHA] manifest.sha256 ≠ fichier ({path})")
               if checks.get(path) and checks[path]!=d:
                   errs.append(f"[SHA] checksums.json ≠ fichier ({path})")
-
-          # 2) 2A / 1A cohérence & onFTL
+          # 2) cohérence 2A/1A + onFTL
           twoA = load('en/commodities_table_2A.json')['commodities']
           oneA = load('en/ftl_table_1A.json')['items']
           map2A = {(r['category'], r['commodity']): r for r in twoA}
@@ -131,8 +144,7 @@ jobs:
                   if not map2A[k].get('onFTL', False): errs.append(f"[FTL] onFTL:false en 2A pour {k}")
                   if map2A[k]['riskScoreCommodity'] != it['riskScoreCommodity']:
                       errs.append(f"[FTL] score 1A≠2A pour {k}")
-
-          # 3) 2B couverture & valeurs
+          # 3) couverture 2B + valeurs critères
           pairs_files = sorted(glob.glob('en/pairs_table_2B/*.json'))
           present=set()
           for pf in pairs_files:
@@ -141,13 +153,11 @@ jobs:
               present.add((cat,com))
               for p in d['pairs']:
                   for k in ['C1','C2','C3','C4','C5','C6','C7']:
-                      if p[k] not in (0,1,3,9): errs.append(f"[2B] {pf}: valeur {k}={p[k]} invalide")
+                      if p[k] not in (0,1,3,9): errs.append(f"[2B] {pf}: {k}={p[k]} invalide")
                   if not isinstance(p.get('riskScorePair'), int):
                       errs.append(f"[2B] {pf}: riskScorePair invalide")
-
           missing = sorted(set((r['category'], r['commodity']) for r in twoA) - present)
           if missing: errs.append(f"[2B] {len(missing)} denrée(s) de 2A sans fichier 2B (ex: {missing[:3]})")
-
           if errs:
               print("⛔ Anomalies détectées:")
               for e in errs: print(" -", e)
