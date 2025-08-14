@@ -1,0 +1,17 @@
+{
+  "commodity": "Corn meal",
+  "pairs": [
+    {
+      "hazard": "𝑆𝑎𝑙𝑚𝑜𝑛𝑒𝑙𝑙𝑎 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Mycotoxins - Afl DON Fum OTA",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐵𝑎𝑐𝑖𝑙𝑙𝑢𝑠 𝑐𝑒𝑟𝑒𝑢𝑠 and toxin",
+      "risk_score": 0
+    }
+  ]
+}

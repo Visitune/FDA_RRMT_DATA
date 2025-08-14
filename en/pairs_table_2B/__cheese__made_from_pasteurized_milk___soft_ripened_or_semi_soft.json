@@ -1,0 +1,33 @@
+{
+  "commodity": "* Cheese (made from pasteurized milk), soft ripened or semi-soft",
+  "pairs": [
+    {
+      "hazard": "𝐿𝑖𝑠𝑡𝑒𝑟𝑖𝑎 𝑚𝑜𝑛𝑜𝑐𝑦𝑡𝑜𝑔𝑒𝑛𝑒𝑠",
+      "risk_score": 0
+    },
+    {
+      "hazard": "STEC O157",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝑆𝑎𝑙𝑚𝑜𝑛𝑒𝑙𝑙𝑎 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Mycotoxins - Aflatoxin M1",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Scombroid toxin (Histamine)",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐵𝑎𝑐𝑖𝑙𝑙𝑢𝑠 𝑐𝑒𝑟𝑒𝑢𝑠 and toxin",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝑆𝑡𝑎𝑝ℎ𝑦𝑙𝑜𝑐𝑜𝑐𝑐𝑢𝑠 𝑎𝑢𝑟𝑒𝑢𝑠 and toxin",
+      "risk_score": 0
+    }
+  ]
+}

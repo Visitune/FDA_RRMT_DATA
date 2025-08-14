@@ -1,0 +1,41 @@
+{
+  "commodity": "Molluscan shellfish, bivalves",
+  "code": "020301",
+  "hazard_pairs": [
+    {
+      "hazard": "Vibrio vulnificus",
+      "severity": 0.95,
+      "contamination_frequency": 0.25,
+      "risk_score": 0.60,
+      "risk_level": "High"
+    },
+    {
+      "hazard": "Vibrio parahaemolyticus",
+      "severity": 0.80,
+      "contamination_frequency": 0.30,
+      "risk_score": 0.55,
+      "risk_level": "Medium-High"
+    },
+    {
+      "hazard": "Norovirus",
+      "severity": 0.85,
+      "contamination_frequency": 0.20,
+      "risk_score": 0.53,
+      "risk_level": "Medium-High"
+    },
+    {
+      "hazard": "Hepatitis A",
+      "severity": 0.90,
+      "contamination_frequency": 0.15,
+      "risk_score": 0.53,
+      "risk_level": "Medium-High"
+    },
+    {
+      "hazard": "Salmonella spp.",
+      "severity": 0.75,
+      "contamination_frequency": 0.20,
+      "risk_score": 0.48,
+      "risk_level": "Medium"
+    }
+  ]
+}

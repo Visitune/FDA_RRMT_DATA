@@ -1,0 +1,17 @@
+{
+  "commodity": "Canned seafood",
+  "pairs": [
+    {
+      "hazard": "Saxitoxin (PSP)",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Scombroid toxin (Histamine)",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐶𝑙𝑜𝑠𝑡𝑟𝑖𝑑𝑖𝑢𝑚 𝑏𝑜𝑡𝑢𝑙𝑖𝑛𝑢𝑚 and toxin",
+      "risk_score": 0
+    }
+  ]
+}

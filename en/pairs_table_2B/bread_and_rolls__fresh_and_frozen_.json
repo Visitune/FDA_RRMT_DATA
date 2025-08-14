@@ -1,0 +1,21 @@
+{
+  "commodity": "Bread and rolls (fresh and frozen)",
+  "pairs": [
+    {
+      "hazard": "𝑆𝑎𝑙𝑚𝑜𝑛𝑒𝑙𝑙𝑎 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Mycotoxins - DON OTA",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐶𝑙𝑜𝑠𝑡𝑟𝑖𝑑𝑖𝑢𝑚 𝑝𝑒𝑟𝑓𝑟𝑖𝑛𝑔𝑒𝑛𝑠 and toxin",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Norovirus",
+      "risk_score": 0
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "commodity": "* Finfish, species not associated with histamine or ciguatoxin",
+  "pairs": [
+    {
+      "hazard": "𝐿𝑖𝑠𝑡𝑒𝑟𝑖𝑎 𝑚𝑜𝑛𝑜𝑐𝑦𝑡𝑜𝑔𝑒𝑛𝑒𝑠",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝑉𝑖𝑏𝑟𝑖𝑜 𝑝𝑎𝑟𝑎ℎ𝑎𝑒𝑚𝑜𝑙𝑦𝑡𝑖𝑐𝑢𝑠",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝑆𝑎𝑙𝑚𝑜𝑛𝑒𝑙𝑙𝑎 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐴𝑒𝑟𝑜𝑚𝑜𝑛𝑎𝑠 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Cestodes",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐴𝑛𝑖𝑠𝑎𝑘𝑖𝑠 𝑠𝑖𝑚𝑝𝑙𝑒𝑥",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝑆𝑡𝑎𝑝ℎ𝑦𝑙𝑜𝑐𝑜𝑐𝑐𝑢𝑠 𝑎𝑢𝑟𝑒𝑢𝑠 and toxin",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Tetrodotoxin",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Trematodes",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐵𝑎𝑐𝑖𝑙𝑙𝑢𝑠 𝑐𝑒𝑟𝑒𝑢𝑠 and toxin",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝑃𝑙𝑒𝑠𝑖𝑜𝑚𝑜𝑛𝑎𝑠 𝑠ℎ𝑖𝑔𝑒𝑙𝑙𝑜𝑖𝑑𝑒𝑠",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝑆ℎ𝑖𝑔𝑒𝑙𝑙𝑎 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "STEC O157",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Rhabdomyolysis",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐶𝑎𝑚𝑝𝑦𝑙𝑜𝑏𝑎𝑐𝑡𝑒𝑟 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Norovirus",
+      "risk_score": 0
+    }
+  ]
+}

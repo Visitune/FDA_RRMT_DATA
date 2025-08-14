@@ -1,0 +1,34 @@
+{
+  "commodity": "Molluscan shellfish, bivalves",
+  "code": "090103",
+  "hazard_pairs": [
+    {
+      "hazard": "Vibrio spp.",
+      "severity": 0.85,
+      "contamination_frequency": 0.15,
+      "risk_score": 0.57,
+      "risk_level": "Medium-High"
+    },
+    {
+      "hazard": "Salmonella spp.",
+      "severity": 0.75,
+      "contamination_frequency": 0.08,
+      "risk_score": 0.48,
+      "risk_level": "Medium"
+    },
+    {
+      "hazard": "Listeria monocytogenes",
+      "severity": 0.8,
+      "contamination_frequency": 0.06,
+      "risk_score": 0.5,
+      "risk_level": "Medium-High"
+    },
+    {
+      "hazard": "Clostridium botulinum",
+      "severity": 0.9,
+      "contamination_frequency": 0.03,
+      "risk_score": 0.55,
+      "risk_level": "Medium-High"
+    }
+  ]
+}

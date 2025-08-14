@@ -1,0 +1,21 @@
+{
+  "commodity": "Dough",
+  "pairs": [
+    {
+      "hazard": "𝑆𝑎𝑙𝑚𝑜𝑛𝑒𝑙𝑙𝑎 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "STEC O157",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐵𝑎𝑐𝑖𝑙𝑙𝑢𝑠 𝑐𝑒𝑟𝑒𝑢𝑠 and toxin",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐶𝑎𝑚𝑝𝑦𝑙𝑜𝑏𝑎𝑐𝑡𝑒𝑟 spp.",
+      "risk_score": 0
+    }
+  ]
+}

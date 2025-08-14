@@ -1,0 +1,9 @@
+{
+  "commodity": "Non-dairy beverages",
+  "pairs": [
+    {
+      "hazard": "Norovirus",
+      "risk_score": 0
+    }
+  ]
+}

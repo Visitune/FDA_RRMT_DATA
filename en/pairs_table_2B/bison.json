@@ -1,0 +1,13 @@
+{
+  "commodity": "Bison",
+  "pairs": [
+    {
+      "hazard": "STEC O157",
+      "risk_score": 0
+    },
+    {
+      "hazard": "STEC non-O157",
+      "risk_score": 0
+    }
+  ]
+}

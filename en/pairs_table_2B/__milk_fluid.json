@@ -1,0 +1,34 @@
+{
+  "commodity": "Milk, fluid",
+  "code": "060101",
+  "hazard_pairs": [
+    {
+      "hazard": "Listeria monocytogenes",
+      "severity": 0.9,
+      "contamination_frequency": 0.08,
+      "risk_score": 0.57,
+      "risk_level": "Medium-High"
+    },
+    {
+      "hazard": "Salmonella spp.",
+      "severity": 0.85,
+      "contamination_frequency": 0.12,
+      "risk_score": 0.56,
+      "risk_level": "Medium-High"
+    },
+    {
+      "hazard": "E. coli O157:H7",
+      "severity": 0.8,
+      "contamination_frequency": 0.05,
+      "risk_score": 0.5,
+      "risk_level": "Medium-High"
+    },
+    {
+      "hazard": "Campylobacter jejuni",
+      "severity": 0.75,
+      "contamination_frequency": 0.1,
+      "risk_score": 0.49,
+      "risk_level": "Medium"
+    }
+  ]
+}

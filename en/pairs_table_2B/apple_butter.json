@@ -1,0 +1,9 @@
+{
+  "commodity": "Apple butter",
+  "pairs": [
+    {
+      "hazard": "Mycotoxins - Patulin",
+      "risk_score": 0
+    }
+  ]
+}

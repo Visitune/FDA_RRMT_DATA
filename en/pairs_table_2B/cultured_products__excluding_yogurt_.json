@@ -1,0 +1,25 @@
+{
+  "commodity": "Cultured products (excluding yogurt)",
+  "pairs": [
+    {
+      "hazard": "𝐿𝑖𝑠𝑡𝑒𝑟𝑖𝑎 𝑚𝑜𝑛𝑜𝑐𝑦𝑡𝑜𝑔𝑒𝑛𝑒𝑠",
+      "risk_score": 0
+    },
+    {
+      "hazard": "STEC O157",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐶𝑎𝑚𝑝𝑦𝑙𝑜𝑏𝑎𝑐𝑡𝑒𝑟 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐶𝑙𝑜𝑠𝑡𝑟𝑖𝑑𝑖𝑢𝑚 𝑝𝑒𝑟𝑓𝑟𝑖𝑛𝑔𝑒𝑛𝑠 and toxin",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Norovirus",
+      "risk_score": 0
+    }
+  ]
+}

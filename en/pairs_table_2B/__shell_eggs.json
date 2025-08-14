@@ -1,0 +1,20 @@
+{
+  "commodity": "Shell eggs",
+  "code": "040301",
+  "hazard_pairs": [
+    {
+      "hazard": "Salmonella Enteritidis",
+      "severity": 0.85,
+      "contamination_frequency": 0.2,
+      "risk_score": 0.59,
+      "risk_level": "Medium-High"
+    },
+    {
+      "hazard": "Salmonella Typhimurium",
+      "severity": 0.8,
+      "contamination_frequency": 0.15,
+      "risk_score": 0.54,
+      "risk_level": "Medium-High"
+    }
+  ]
+}

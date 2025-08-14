@@ -1,0 +1,9 @@
+{
+  "commodity": "Biscuits",
+  "pairs": [
+    {
+      "hazard": "Norovirus",
+      "risk_score": 0
+    }
+  ]
+}

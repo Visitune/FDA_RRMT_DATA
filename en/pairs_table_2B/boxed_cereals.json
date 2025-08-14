@@ -1,0 +1,29 @@
+{
+  "commodity": "Boxed cereals",
+  "pairs": [
+    {
+      "hazard": "𝑆𝑎𝑙𝑚𝑜𝑛𝑒𝑙𝑙𝑎 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Mycotoxins - Afl OTA",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Mycotoxins - Fumonisins",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Mycotoxins - Ochratoxin A",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Mycotoxins - Deoxynivalenol",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Norovirus",
+      "risk_score": 0
+    }
+  ]
+}

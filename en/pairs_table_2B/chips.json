@@ -1,0 +1,29 @@
+{
+  "commodity": "Chips",
+  "pairs": [
+    {
+      "hazard": "Mycotoxins - Afl DON Fum OTA",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Mycotoxins - Aflatoxins",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝑆𝑎𝑙𝑚𝑜𝑛𝑒𝑙𝑙𝑎 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Mycotoxins - DON OTA",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐶𝑎𝑚𝑝𝑦𝑙𝑜𝑏𝑎𝑐𝑡𝑒𝑟 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Norovirus",
+      "risk_score": 0
+    }
+  ]
+}

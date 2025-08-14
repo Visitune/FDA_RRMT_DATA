@@ -1,0 +1,9 @@
+{
+  "commodity": "Apple juice concentrate",
+  "pairs": [
+    {
+      "hazard": "Mycotoxins - Patulin",
+      "risk_score": 0
+    }
+  ]
+}

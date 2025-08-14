@@ -1,0 +1,9 @@
+{
+  "commodity": "Milk (shelf-stable, not condensed)",
+  "pairs": [
+    {
+      "hazard": "𝐶𝑙𝑜𝑠𝑡𝑟𝑖𝑑𝑖𝑢𝑚 𝑏𝑜𝑡𝑢𝑙𝑖𝑛𝑢𝑚 and toxin",
+      "risk_score": 0
+    }
+  ]
+}
