@@ -1,0 +1,13 @@
+{
+  "commodity": "Peanuts",
+  "pairs": [
+    {
+      "hazard": "𝑆𝑎𝑙𝑚𝑜𝑛𝑒𝑙𝑙𝑎 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Mycotoxins - Aflatoxins",
+      "risk_score": 0
+    }
+  ]
+}

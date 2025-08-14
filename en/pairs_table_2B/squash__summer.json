@@ -1,0 +1,17 @@
+{
+  "commodity": "Squash, summer",
+  "pairs": [
+    {
+      "hazard": "𝑆𝑎𝑙𝑚𝑜𝑛𝑒𝑙𝑙𝑎 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Cucurbitacin toxin",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Norovirus",
+      "risk_score": 0
+    }
+  ]
+}

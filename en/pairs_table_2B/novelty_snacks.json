@@ -1,0 +1,13 @@
+{
+  "commodity": "Novelty snacks",
+  "pairs": [
+    {
+      "hazard": "𝑆𝑎𝑙𝑚𝑜𝑛𝑒𝑙𝑙𝑎 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "STEC O157",
+      "risk_score": 0
+    }
+  ]
+}

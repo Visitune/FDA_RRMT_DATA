@@ -1,0 +1,29 @@
+{
+  "commodity": "Salsa (fresh)",
+  "pairs": [
+    {
+      "hazard": "𝑆𝑎𝑙𝑚𝑜𝑛𝑒𝑙𝑙𝑎 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐶𝑙𝑜𝑠𝑡𝑟𝑖𝑑𝑖𝑢𝑚 𝑏𝑜𝑡𝑢𝑙𝑖𝑛𝑢𝑚 and toxin",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐿𝑖𝑠𝑡𝑒𝑟𝑖𝑎 𝑚𝑜𝑛𝑜𝑐𝑦𝑡𝑜𝑔𝑒𝑛𝑒𝑠",
+      "risk_score": 0
+    },
+    {
+      "hazard": "STEC O157",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝑆ℎ𝑖𝑔𝑒𝑙𝑙𝑎 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Norovirus",
+      "risk_score": 0
+    }
+  ]
+}

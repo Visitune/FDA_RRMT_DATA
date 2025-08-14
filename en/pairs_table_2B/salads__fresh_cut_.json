@@ -1,0 +1,53 @@
+{
+  "commodity": "Salads (fresh-cut)",
+  "pairs": [
+    {
+      "hazard": "𝐿𝑖𝑠𝑡𝑒𝑟𝑖𝑎 𝑚𝑜𝑛𝑜𝑐𝑦𝑡𝑜𝑔𝑒𝑛𝑒𝑠",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝑆𝑎𝑙𝑚𝑜𝑛𝑒𝑙𝑙𝑎 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "STEC O157",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝑆ℎ𝑖𝑔𝑒𝑙𝑙𝑎 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝑌𝑒𝑟𝑠𝑖𝑛𝑖𝑎 𝑒𝑛𝑡𝑒𝑟𝑜𝑐𝑜𝑙𝑖𝑡𝑖𝑐𝑎",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐶𝑟𝑦𝑝𝑡𝑜𝑠𝑝𝑜𝑟𝑖𝑑𝑖𝑢𝑚 𝑝𝑎𝑟𝑣𝑢𝑚 or other spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐵𝑎𝑐𝑖𝑙𝑙𝑢𝑠 𝑐𝑒𝑟𝑒𝑢𝑠 and toxin",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Hepatitis A virus",
+      "risk_score": 0
+    },
+    {
+      "hazard": "STEC non-O157",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐶𝑎𝑚𝑝𝑦𝑙𝑜𝑏𝑎𝑐𝑡𝑒𝑟 spp.",
+      "risk_score": 0
+    },
+    {
+      "hazard": "Norovirus",
+      "risk_score": 0
+    },
+    {
+      "hazard": "𝐶𝑦𝑐𝑙𝑜𝑠𝑝𝑜𝑟𝑎 𝑐𝑎𝑦𝑒𝑡𝑎𝑛𝑒𝑛𝑠𝑖𝑠",
+      "risk_score": 0
+    }
+  ]
+}
