@@ -86,6 +86,7 @@ const state = {
   filter: "all",
   hazardFilter: "",
   scoreMin: 0,
+  history: [],
   log: []
 };
 
@@ -94,7 +95,7 @@ const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 function t(k){ return (I18N[state.lang] && I18N[state.lang][k]) || k; }
 function toast(msg, type="ok"){ const el=$("#toast"); el.textContent=msg; el.className="toast show "+type; clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),2600); }
-function log(msg){ const ts=new Date().toLocaleTimeString(state.lang==="fr"?"fr-FR":"en-US"); const line=`[${ts}] ${msg}`; state.log.push({ts,msg}); if(state.log.length>100) state.log=state.log.slice(-50); const d=$("#log"); d.textContent=(d.textContent?d.textContent+"\n":"")+line; d.scrollTop=d.scrollHeight; }
+function log(msg){ const ts=new Date().toLocaleTimeString(state.lang==="fr"?"fr-FR":"en-US"); const line=`[${ts}] ${msg}`; state.log.push({ts,msg}); if(state.log.length>100) state.log=state.log.slice(-50); const d=$("#log"); d.textContent=(d.textContent?d.textContent+"\n":"")+line; d.scrollTop=d.scrollHeight; const sr=$("#sr-live"); if(sr) sr.textContent=msg; }
 function riskColor(v){ if(v>=80) return "var(--risk-high)"; if(v>=50) return "var(--risk-med)"; return "var(--risk-low)"; }
 function esc(s){ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
 
@@ -134,6 +135,7 @@ async function loadAll(){
           ftl: state.data.oneASet.has(normName(name)),
           risk_score: (two.risk_score!=null? two.risk_score : null),
           risk_level: two.risk_level || "—",
+          risk_factors: two.risk_factors || {},
           hazards: (j.hazard_pairs||[]).map(hp=>({
             hazard: hp.hazard,
             severity: hp.severity,
@@ -147,7 +149,10 @@ async function loadAll(){
     }
     state.data.items = items.sort((a,b)=>a.name.localeCompare(b.name));
     const n = items.length;
-    $("#counts").textContent = `${n} denrées · ${state.data.twoA.length} profils 2A`;
+    const upd = twoA.last_updated || "—";
+    let stale = "";
+    try { const d=new Date(upd); const age=(Date.now()-d.getTime())/(365.25*24*3600*1000); if(age>1) stale=" ⚠️ données > 1 an"; } catch(e){}
+    $("#counts").textContent = `${n} denrées · ${state.data.twoA.length} profils 2A · màj ${upd}${stale}`;
     $("#statusBadge").className="pill ok"; $("#statusBadge").textContent=t("ready");
     log("Données FDA chargées ("+n+" denrées).");
   } catch(e){
@@ -172,6 +177,7 @@ async function loadAll(){
     log("Mode démo activé (données FDA indisponibles).");
   }
   renderList();
+  renderHistory();
 }
 function normName(s){ return String(s||"").toLowerCase().replace(/\s+/g," ").trim(); }
 
@@ -226,13 +232,18 @@ async function selectCommodity(nameOrCode){
   if(item.ftl) badges.innerHTML += `<span class="pill ok">FTL</span>`;
   badges.innerHTML += `<span class="pill info">${esc(item.category||"—")}</span>`;
   if(item.risk_level && item.risk_level!=="—") badges.innerHTML += `<span class="pill muted">${esc(item.risk_level)}</span>`;
+  try { $("#auditNotes").value = localStorage.getItem("rrm-notes-"+item.code) || ""; } catch(e){}
   const score = item.risk_score!=null ? Math.round(item.risk_score*100) : 0;
   $("#aggScore").textContent = score? score+"%" : "—";
   $("#aggScore").style.color = riskColor(score);
   renderPairs();
   renderChart();
+  renderRadar();
   renderList();
+  renderHistory();
   log(`Ouverture : ${item.name} (${item.code})`);
+  pushHistory(item.name);
+  try { location.hash = encodeURIComponent(item.code||item.name); } catch(e){}
 }
 
 /* ===== Render pairs table ===== */
@@ -326,6 +337,108 @@ function renderChart(){
 }
 function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
 
+/* ===== Radar factors (Table 2A) ===== */
+function renderRadar(){
+  const canvas = $("#radarChart"); if(!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio||1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width*dpr; canvas.height = rect.height*dpr;
+  ctx.scale(dpr,dpr);
+  const W = rect.width, H = rect.height;
+  ctx.clearRect(0,0,W,H);
+  const item = state.current.item;
+  if(!item || !item.risk_factors || Object.keys(item.risk_factors).length===0){
+    $("#radarSub").textContent = "Aucun facteur";
+    return;
+  }
+  $("#radarSub").textContent = item.risk_level || "—";
+  const factors = item.risk_factors;
+  const labels = Object.keys(factors);
+  const values = labels.map(k=>factors[k]);
+  const n = labels.length;
+  const cx = W/2, cy = H/2;
+  const radius = Math.min(W,H)/2 - 40;
+  // grid
+  ctx.strokeStyle = "rgba(255,255,255,0.08)";
+  for(let r=1;r<=4;r++){
+    ctx.beginPath();
+    for(let i=0;i<n;i++){
+      const ang = (Math.PI*2*i/n) - Math.PI/2;
+      const rr = radius*(r/4);
+      const x = cx + rr*Math.cos(ang);
+      const y = cy + rr*Math.sin(ang);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.closePath(); ctx.stroke();
+  }
+  // axes + labels
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--color-text-2").trim() || "#8ea0b3";
+  ctx.font = "11px system-ui";
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  for(let i=0;i<n;i++){
+    const ang = (Math.PI*2*i/n) - Math.PI/2;
+    const x = cx + radius*Math.cos(ang);
+    const y = cy + radius*Math.sin(ang);
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(x,y); ctx.strokeStyle="rgba(255,255,255,0.06)"; ctx.stroke();
+    const lx = cx + (radius+18)*Math.cos(ang);
+    const ly = cy + (radius+18)*Math.sin(ang);
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--color-text-2").trim() || "#8ea0b3";
+    const lbl = labels[i].replace(/_/g," ");
+    ctx.fillText(lbl.length>18?lbl.slice(0,16)+"…":lbl, lx, ly);
+  }
+  // data polygon
+  ctx.beginPath();
+  for(let i=0;i<n;i++){
+    const ang = (Math.PI*2*i/n) - Math.PI/2;
+    const v = values[i];
+    const rr = radius*v;
+    const x = cx + rr*Math.cos(ang);
+    const y = cy + rr*Math.sin(ang);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+  ctx.fillStyle = "rgba(55,178,77,0.25)";
+  ctx.fill();
+  ctx.strokeStyle = "var(--color-brand)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  // points
+  for(let i=0;i<n;i++){
+    const ang = (Math.PI*2*i/n) - Math.PI/2;
+    const v = values[i];
+    const rr = radius*v;
+    const x = cx + rr*Math.cos(ang);
+    const y = cy + rr*Math.sin(ang);
+    ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2);
+    ctx.fillStyle = "#37b24d"; ctx.fill();
+  }
+}
+
+function renderGlobal(){
+  const q = ($("#globalQ").value||"").toLowerCase();
+  const tbody = $("#globalBody");
+  tbody.innerHTML = "";
+  const rows = [];
+  for(const it of (state.data.items||[])){
+    for(const h of (it.hazards||[])){
+      if(!q || it.name.toLowerCase().includes(q) || h.hazard.toLowerCase().includes(q)) rows.push({name:it.name,hazard:h.hazard,score:h.risk_score,level:h.risk_level});
+    }
+  }
+  rows.sort((a,b)=>(b.score||0)-(a.score||0));
+  $("#globalCount").textContent = rows.length+" résultats";
+  const slice = rows.slice(0,50);
+  for(const r of slice){
+    const sc = r.score!=null? Math.round(r.score*100):0;
+    const tr=document.createElement("tr");
+    tr.innerHTML = `<td>${esc(r.name)}</td><td>${esc(r.hazard)}</td><td style="color:${riskColor(sc)};font-weight:700">${sc}%</td><td class="crit">${esc(r.level||"—")}</td>`;
+    tr.style.cursor="pointer";
+    tr.addEventListener("click",()=>selectCommodity(r.name));
+    tbody.appendChild(tr);
+  }
+  if(rows.length>50){ const tr=document.createElement("tr"); tr.innerHTML=`<td colspan="4" style="text-align:center;color:var(--color-text-3);font-size:var(--t-xs)">… et ${rows.length-50} autres</td>`; tbody.appendChild(tr); }
+}
+
 /* ===== Export ===== */
 function exportCSV(){
   if(!state.current.name){ toast("Sélectionnez d'abord une denrée","err"); return; }
@@ -345,7 +458,23 @@ function exportJSON(){
   downloadBlob(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}), `${state.current.code||"export"}.json`);
   log("Export JSON généré."); toast("JSON exporté");
 }
-function downloadBlob(blob,name){ const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
+function exportKDE(){
+  if(!state.current.name){ toast("Sélectionnez d'abord une denrée","err"); return; }
+  const item = state.current.item;
+  const rows = [["CTE","KDE","Valeur","Notes"]];
+  const ctes = ["Harvesting/Cooling","Initial Packing","First Receiver","Shipping","Receiving","Transformation"];
+  for(const c of ctes){
+    rows.push([c,"Traceability Lot Code","",""]);
+    rows.push([c,"Quantity","",""]);
+    rows.push([c,"Unit of Measure","",""]);
+    rows.push([c,"Product Description",item.name,""]);
+    rows.push([c,"Location","",""]);
+    rows.push([c,"Date/Time","",""]);
+  }
+  const csv = rows.map(r=>r.map(x=>`"${String(x).replaceAll('"','""')}"`).join(",")).join("\n");
+  downloadBlob(new Blob([csv],{type:"text/csv;charset=utf-8"}), `${item.code}_KDE_CTE_template.csv`);
+  log("Template KDE/CTE généré."); toast("Template exporté");
+}
 
 /* ===== Project save/load ===== */
 async function saveRRM(){
@@ -356,7 +485,7 @@ async function saveRRM(){
     const proj = { schemaVersion:"rrmft-project-1.0", savedAt:new Date().toISOString(), uiLang:state.lang,
       selection:{code:item.code, name:item.name, category:item.category},
       results: state.current.hazards,
-      notes:{name:$("#projName").value, ref:$("#projRef").value, notes:$("#projNotes").value},
+      notes:{name:$("#projName").value, ref:$("#projRef").value, notes:$("#projNotes").value, audit:$("#auditNotes").value},
       log: state.log };
     zip.file("project.json", JSON.stringify(proj,null,2));
     const files = $("#files").files;
@@ -388,12 +517,12 @@ function applyLang(){
   $("#hazardFilter").placeholder = t("filterHazards");
   const opts = $("#scoreFilter").options;
   opts[0].text=t("allScores");
-  // chips
   const chips = $$("#filters .chip-filter");
   chips[0].textContent=t("all"); chips[1].textContent=t("ftlOnly"); chips[2].textContent=t("highScore");
-  // topbar help
-  // re-render list labels
+  $$("[data-i18n]").forEach(el=>{ const k=el.getAttribute("data-i18n"); if(I18N[state.lang] && I18N[state.lang][k]) el.textContent=I18N[state.lang][k]; });
   renderList();
+  renderHistory();
+  if(state.current.name) selectCommodity(state.current.name);
 }
 function setTheme(th){
   state.theme = th;
@@ -424,7 +553,7 @@ function bindEvents(){
   $("#openRRM").addEventListener("change", e=>{ if(e.target.files[0]) openRRM(e.target.files[0]); });
   $("#exportCSV").addEventListener("click", exportCSV);
   $("#exportJSON").addEventListener("click", exportJSON);
-  $("#exportPrint").addEventListener("click", ()=>window.print());
+  $("#exportKDE").addEventListener("click", exportKDE);
   $("#clearLog").addEventListener("click", ()=>{ $("#log").textContent=""; state.log=[]; });
   $("#btnTheme").addEventListener("click", ()=>setTheme(state.theme==="dark"?"light":"dark"));
   $("#btnSidebar").addEventListener("click", ()=>$("#sidebar").classList.toggle("open"));
@@ -434,7 +563,12 @@ function bindEvents(){
   $("#guideNext").addEventListener("click", ()=>{ if(guideIndex<GUIDE_SLIDES.length-1){ guideIndex++; renderGuide(); } else { closeGuide(); } });
   $("#guideClose").addEventListener("click", closeGuide);
   $("#modalGuide").addEventListener("click", e=>{ if(e.target.id==="modalGuide") closeGuide(); });
+  $("#auditNotes").addEventListener("input", e=>{
+    if(!state.current.code) return;
+    try { localStorage.setItem("rrm-notes-"+state.current.code, e.target.value); } catch(err){}
+  });
   $("#demoBtn").addEventListener("click", ()=>selectCommodity("Tomatoes"));
+  $("#globalQ").addEventListener("input", ()=>renderGlobal());
   document.addEventListener("keydown", e=>{
     if(e.key==="Escape"){ $("#modalHelp").classList.remove("open"); $("#modalGuide").classList.remove("open"); $("#sidebar").classList.remove("open"); $("#panel").classList.remove("open"); }
     if((e.ctrlKey||e.metaKey) && e.key==="s"){ e.preventDefault(); saveRRM(); }
@@ -514,15 +648,43 @@ function renderGuide(){
   $("#guidePrev").disabled = guideIndex===0;
   $("#guideNext").textContent = guideIndex===GUIDE_SLIDES.length-1 ? "Terminer ✓" : "Suivant ▶";
 }
-function openGuide(){ guideIndex=0; renderGuide(); $("#modalGuide").classList.add("open"); }
-function closeGuide(){ $("#modalGuide").classList.remove("open"); }
+function openGuide(){ guideIndex=0; renderGuide(); $("#modalGuide").classList.add("open"); 
+  const modal=$("#modalGuide").querySelector(".modal");
+  const focusables=modal.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])");
+  if(focusables.length) focusables[0].focus();
+  // focus trap
+  $("#modalGuide")._trap = (e)=>{
+    if(e.key!=="Tab") return;
+    const f=modal.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])");
+    if(!f.length) return;
+    const first=f[0], last=f[f.length-1];
+    if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+  };
+  $("#modalGuide").addEventListener("keydown", $("#modalGuide")._trap);
+}
+function closeGuide(){ $("#modalGuide").classList.remove("open"); if($("#modalGuide")._trap){ $("#modalGuide").removeEventListener("keydown", $("#modalGuide")._trap); } }
 
-/* ===== Init ===== */
+function pushHistory(name){
+  state.history = [name].concat(state.history.filter(n=>n!==name)).slice(0,9);
+  try { localStorage.setItem("rrm-history", JSON.stringify(state.history)); } catch(e){}
+  renderHistory();
+}
+function renderHistory(){
+  const el = $("#historyList");
+  if(!state.history.length){ el.textContent="—"; return; }
+  el.innerHTML = state.history.map(n=>`<div style="cursor:pointer;padding:2px 0" data-h="${esc(n)}">${esc(n)}</div>`).join("");
+  el.querySelectorAll("[data-h]").forEach(d=>d.addEventListener("click",()=>selectCommodity(d.dataset.h)));
+}
 document.addEventListener("DOMContentLoaded", async ()=>{
   const saved = localStorage.getItem("rrm-theme"); if(saved) setTheme(saved); else setTheme("dark");
+  try { state.history = JSON.parse(localStorage.getItem("rrm-history")||"[]"); } catch(e){ state.history=[]; }
   bindEvents();
   applyLang();
   await loadAll();
+  // hash routing
+  const h = decodeURIComponent((location.hash||"").replace(/^#/,""));
+  if(h){ const it=(state.data.items||[]).find(e=>e.code===h||e.name===h); if(it) selectCommodity(it.name); }
   if(!localStorage.getItem("rrm-guide-seen")){ openGuide(); localStorage.setItem("rrm-guide-seen","1"); }
   log("Application initialisée.");
 });

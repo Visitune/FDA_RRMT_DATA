@@ -45,10 +45,18 @@
       <button class="chip-filter" data-filter="high">Score élevé</button>
     </div>
     <div class="list" id="list" role="listbox" aria-label="Liste des denrées"></div>
+    <div id="history" style="border-top:1px solid var(--color-line);padding:var(--s-3) var(--s-4);max-height:120px;overflow-y:auto">
+      <div class="group-title" style="padding:0 0 var(--s-1)">Historique</div>
+      <div id="historyList" style="font-size:var(--t-xs);color:var(--color-text-3)">—</div>
+    </div>
   </aside>
 
   <!-- Main -->
   <main class="main" id="main">
+    <div class="print-only" style="display:none">
+      <h1>RRM-FT Assistant — Rapport FSMA 204</h1>
+      <p>Généré le <span id="printDate"></span></p>
+    </div>
     <!-- Status bar -->
     <div class="card" style="padding:var(--s-3) var(--s-5);display:flex;align-items:center;gap:var(--s-3)">
       <span id="statusBadge" class="pill warn">Chargement…</span>
@@ -70,6 +78,10 @@
             <h2 class="name" id="commodityName">—</h2>
             <div class="meta" id="commodityMeta">—</div>
             <div class="badges" id="commodityBadges"></div>
+            <div class="field" style="margin-top:var(--s-3)">
+              <label>Notes auditeur</label>
+              <textarea id="auditNotes" rows="3" placeholder="Observations, réserves, points à vérifier…" style="width:100%;padding:8px 10px;border:1px solid var(--color-line);background:var(--color-bg-2);color:var(--color-text-0);border-radius:var(--r-sm);font-size:var(--t-sm);font-family:inherit;resize:vertical"></textarea>
+            </div>
           </div>
           <div class="stat">
             <div class="num" id="aggScore">—</div>
@@ -119,6 +131,27 @@
       </div>
       <div class="chart"><canvas id="chart"></canvas></div>
     </section>
+
+    <!-- Global hazard search -->
+    <section class="card" id="globalCard">
+      <div class="section-title">
+        <span>Recherche globale dans les dangers</span>
+        <span class="sub" id="globalCount">—</span>
+      </div>
+      <input type="search" id="globalQ" placeholder="Ex. Salmonella, Listeria…" style="width:100%;padding:10px 12px;border:1px solid var(--color-line);background:var(--color-bg-2);color:var(--color-text-0);border-radius:var(--r-sm);font-size:var(--t-sm);margin-bottom:var(--s-3)" />
+      <div class="table-wrap" style="max-height:260px">
+        <table>
+          <thead><tr><th>Denrée</th><th>Danger</th><th>Score</th><th>Niveau</th></tr></thead>
+          <tbody id="globalBody"></tbody>
+        </table>
+      </div>
+    </section>
+      <div class="section-title">
+        <span>Facteurs de risque (Table 2A)</span>
+        <span class="sub" id="radarSub">—</span>
+      </div>
+      <div class="chart"><canvas id="radarChart"></canvas></div>
+    </section>
   </main>
 
   <!-- Right panel -->
@@ -130,10 +163,10 @@
     </div>
 
     <div class="tabpanel active" data-tab="project">
-      <div class="field"><label>Nom</label><input id="projName" placeholder="Ex. Analyse — Tomates RTE" /></div>
-      <div class="field"><label>Réf./Client</label><input id="projRef" placeholder="Ex. CN-2025-001 / Client X" /></div>
-      <div class="field"><label>Notes</label><textarea id="projNotes" placeholder="Contexte, sites, observations…"></textarea></div>
-      <div class="field"><label>Pièces jointes</label><input id="files" type="file" multiple /></div>
+      <div class="field"><label data-i18n="name">Nom</label><input id="projName" placeholder="Ex. Analyse — Tomates RTE" /></div>
+      <div class="field"><label data-i18n="ref">Réf./Client</label><input id="projRef" placeholder="Ex. CN-2025-001 / Client X" /></div>
+      <div class="field"><label data-i18n="notes">Notes</label><textarea id="projNotes" placeholder="Contexte, sites, observations…"></textarea></div>
+      <div class="field"><label data-i18n="attachments">Pièces jointes</label><input id="files" type="file" multiple /></div>
       <div style="display:flex;gap:var(--s-2)">
         <button class="btn primary block" id="saveRRM">💾 Enregistrer (.RRM)</button>
       </div>
@@ -149,6 +182,7 @@
       <button class="btn block" id="exportCSV">Exporter CSV (EN)</button>
       <button class="btn block" id="exportJSON" style="margin-top:var(--s-2)">Exporter JSON</button>
       <button class="btn block" id="exportPrint" style="margin-top:var(--s-2)">Imprimer / PDF</button>
+      <button class="btn block" id="exportKDE" style="margin-top:var(--s-2)">Template KDE/CTE (CSV)</button>
       <div class="mt16" style="font-size:var(--t-xs);color:var(--color-text-3)">Les exports contiennent les scores officiels FDA (aucun recalcul).</div>
     </div>
 
@@ -180,6 +214,7 @@
 
 <!-- Toast -->
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="sr-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
 <!-- Modal help -->
 <div class="modal-backdrop" id="modalHelp">

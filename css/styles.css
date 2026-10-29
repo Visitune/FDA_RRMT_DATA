@@ -441,8 +441,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 
 /* Print */
 @media print {
+  .print-only { display: block !important; }
   .topbar, .sidebar, .panel { display: none !important; }
   .app { grid-template-columns: 1fr; }
   .main { overflow: visible; }
-  .card { box-shadow: none; border: 1px solid #ccc; }
+  .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+  body { background: #fff; color: #000; }
 }
+
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+.print-only { display:none; }
