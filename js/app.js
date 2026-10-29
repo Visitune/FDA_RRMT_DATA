@@ -579,57 +579,82 @@ function bindEvents(){
 
 /* ===== Guide (slideshow) ===== */
 const GUIDE_SLIDES = [
-  { title: "1. Qu'est-ce que le RRM-FT ?",
-    body: `<p>Le <strong>Risk Ranking Model for Food Tracing (RRM-FT)</strong> est l'outil officiel de la FDA pour classer les risques de traçabilité des aliments selon la règle <strong>FSMA 204</strong> (Food Traceability Rule).</p>
-    <p>Il évalue, pour chaque <em>denrée</em>, les paires <em>denrée × danger</em> selon <strong>7 critères (C1 à C7)</strong> pour produire un <strong>score de risque</strong>. Ce score détermine si la denrée figure sur la <strong>Food Traceability List (FTL)</strong>.</p>
-    <p>Cet assistant utilise les données officielles FDA — <strong>aucun recalcul</strong>, les scores sont ceux de la FDA.</p>` },
-  { title: "2. Les 7 critères C1–C7",
-    body: `<ul>
-      <li><strong>C1</strong> — Fréquence de contamination</li>
-      <li><strong>C2</strong> — Gravité de la maladie</li>
-      <li><strong>C3</strong> — Difficulté de détection</li>
-      <li><strong>C4</strong> — Difficulté de traçabilité</li>
-      <li><strong>C5</strong> — Consommation / exposition</li>
-      <li><strong>C6</strong> — Impact économique</li>
-      <li><strong>C7</strong> — Vulnérabilité de la chaîne d'approvisionnement</li>
+  { title: "🎯 Objectif de l'outil",
+    body: `<p>Cet assistant aide les <strong>professionnels de l'agroalimentaire</strong> (auditeurs, responsables qualité, importateurs) à :</p>
+    <ul>
+      <li>Évaluer les <strong>risques de traçabilité</strong> d'une denrée selon la méthodologie officielle <strong>FDA RRM-FT</strong>.</li>
+      <li>Savoir si la denrée figure sur la <strong>Food Traceability List (FTL)</strong> → soumise à la règle <strong>FSMA 204</strong>.</li>
+      <li>Préparer des <strong>dossiers d'audit et de conformité</strong> (export CSV/JSON, rapport imprimable).</li>
+      <li>Travailler <strong>hors ligne</strong> sur le terrain (mode démo intégré).</li>
     </ul>
-    <p>Le score final (0–100) est la combinaison pondérée. <span style="color:var(--risk-high);font-weight:700">≥ 80 = risque élevé</span>, <span style="color:var(--risk-med);font-weight:700">50–79 = moyen</span>, <span style="color:var(--risk-low);font-weight:700">&lt; 50 = faible</span>.</p>` },
-  { title: "3. La Food Traceability List (FTL)",
-    body: `<p>La FTL recense les aliments à haut risque pour lesquels la traçabilité renforcée s'applique : fromages frais au lait cru, poissons, coquillages, crustacés, légumes feuilles, tomates, poivrons, concombres, melons, fruits tropicaux, herbes fraîches, salades préparées, beurres de noix, œufs en coquille, etc.</p>
-    <p>Si votre denrée est sur la FTL, vous êtes soumis à la règle FSMA 204.</p>` },
-  { title: "4. Exigences pour les importateurs français",
-    body: `<ul>
-      <li><strong>KDE / CTE</strong> : enregistrer les Éléments de Données Clés à chaque Événement de Traçabilité Critique (réception, transformation, expédition).</li>
-      <li><strong>Code de lot de traçabilité</strong> : attribuer et propager un identifiant unique par lot.</li>
-      <li><strong>Délai de 24 h</strong> : fournir à la FDA, sur demande, les enregistrements sous forme de tableau triable dans les 24 heures.</li>
-      <li><strong>Conservation 2 ans</strong> : garder les enregistrements 2 ans au-delà de la date de vente.</li>
-      <li><strong>Vérification des fournisseurs étrangers (FSVP)</strong> : l'importateur est responsable de la conformité de ses fournisseurs.</li>
-    </ul>` },
-  { title: "5. Calendrier de mise en œuvre",
-    body: `<ul>
-      <li><strong>Nov. 2022</strong> — Publication de la règle finale FSMA 204.</li>
-      <li><strong>Janv. 2023</strong> — Entrée en vigueur.</li>
-      <li><strong>20 janv. 2026</strong> — <strong>Date de conformité</strong> : toutes les entreprises concernées doivent être conformes.</li>
-      <li><strong>Après 2026</strong> — Contrôles FDA, possibilité de refus d'entrée pour les importations non conformes.</li>
+    <p style="background:var(--color-brand-soft);padding:var(--s-3);border-radius:var(--r-sm);border-left:3px solid var(--color-brand)">💡 <strong>Aucun recalcul</strong> : les scores affichés sont ceux de la FDA, copiés tels quels.</p>` },
+  { title: "📋 Étape 1 — Comprendre la méthodologie FDA",
+    body: `<p>La FDA évalue chaque <em>paire denrée × danger</em> selon <strong>7 critères (C1 à C7)</strong>, chacun noté, pour produire un <strong>score de risque (0–100)</strong>.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s-2);margin:var(--s-3) 0">
+      <div style="background:var(--color-bg-2);padding:var(--s-3);border-radius:var(--r-sm)"><strong>C1</strong> — Fréquence de contamination</div>
+      <div style="background:var(--color-bg-2);padding:var(--s-3);border-radius:var(--r-sm)"><strong>C2</strong> — Gravité de la maladie</div>
+      <div style="background:var(--color-bg-2);padding:var(--s-3);border-radius:var(--r-sm)"><strong>C3</strong> — Difficulté de détection</div>
+      <div style="background:var(--color-bg-2);padding:var(--s-3);border-radius:var(--r-sm)"><strong>C4</strong> — Difficulté de traçabilité</div>
+      <div style="background:var(--color-bg-2);padding:var(--s-3);border-radius:var(--r-sm)"><strong>C5</strong> — Consommation / exposition</div>
+      <div style="background:var(--color-bg-2);padding:var(--s-3);border-radius:var(--r-sm)"><strong>C6</strong> — Impact économique</div>
+      <div style="background:var(--color-bg-2);padding:var(--s-3);border-radius:var(--r-sm);grid-column:1/-1"><strong>C7</strong> — Vulnérabilité de la chaîne d'approvisionnement</div>
+    </div>
+    <p>Légende des scores : <span style="color:var(--risk-high);font-weight:700">🔴 ≥ 80 = risque élevé</span> · <span style="color:var(--risk-med);font-weight:700">🟠 50–79 = moyen</span> · <span style="color:var(--risk-low);font-weight:700">🟢 &lt; 50 = faible</span>.</p>` },
+  { title: "📋 Étape 2 — La Food Traceability List (FTL)",
+    body: `<p>La FTL recense les aliments à <strong>haut risque</strong> pour lesquels la traçabilité renforcée s'applique. Exemples :</p>
+    <ul>
+      <li>🧀 Fromages frais au lait cru, beurres de noix</li>
+      <li>🐟 Poissons, coquillages, crustacés, œufs en coquille</li>
+      <li>🥬 Légumes feuilles, tomates, poivrons, concombres, melons</li>
+      <li>🍓 Fruits tropicaux, herbes fraîches</li>
+      <li>🥗 Salades préparées (RTE deli salads)</li>
     </ul>
-    <p><em>Les importateurs français exportant vers les États-Unis sont directement concernés.</em></p>` },
-  { title: "6. Comment utiliser cet outil",
-    body: `<ol>
-      <li><strong>Recherchez</strong> une denrée dans la barre latérale (ou tapez quelques lettres).</li>
-      <li><strong>Cliquez</strong> sur la denrée pour afficher le résumé (catégorie, FTL, score max).</li>
-      <li><strong>Consultez</strong> le tableau des paires danger, trié par score.</li>
-      <li><strong>Filtrez</strong> par danger ou par score minimal (≥ 50/70/90).</li>
-      <li><strong>Exportez</strong> en CSV/JSON ou imprimez pour votre dossier.</li>
-      <li><strong>Enregistrez</strong> un projet .RRM pour le reprendre plus tard.</li>
+    <p>Si votre denrée est sur la FTL → vous êtes <strong>soumis à la règle FSMA 204</strong>. Le badge <span class="pill ok">FTL</span> dans l'assistant l'indique.</p>` },
+  { title: "📋 Étape 3 — Obligations pour les importateurs français",
+    body: `<p>Les importateurs français exportant vers les États-Unis sont <strong>directement concernés</strong>. Obligations clés :</p>
+    <ol>
+      <li><strong>KDE / CTE</strong> — Enregistrer les Éléments de Données Clés à chaque Événement de Traçabilité Critique (réception, transformation, expédition).</li>
+      <li><strong>Code de lot de traçabilité</strong> — attribuer et propager un identifiant unique par lot.</li>
+      <li><strong>Délai de 24 h</strong> — fournir à la FDA, sur demande, les enregistrements sous forme de tableau triable dans les 24 heures.</li>
+      <li><strong>Conservation 2 ans</strong> — garder les enregistrements 2 ans au-delà de la date de vente.</li>
+      <li><strong>FSVP</strong> — l'importateur est responsable de la conformité de ses fournisseurs étrangers.</li>
+    </ol>
+    <p style="background:var(--color-warn-soft);padding:var(--s-3);border-radius:var(--r-sm);border-left:3px solid var(--color-warn)">⚠️ <strong>Sanction</strong> : refus d'entrée aux États-Unis pour les importations non conformes.</p>` },
+  { title: "📅 Étape 4 — Calendrier de mise en œuvre",
+    body: `<div style="display:flex;flex-direction:column;gap:var(--s-2)">
+      <div style="display:flex;gap:var(--s-3);align-items:center;background:var(--color-bg-2);padding:var(--s-3);border-radius:var(--r-sm)"><span style="font-weight:700;min-width:110px;color:var(--color-brand)">Nov. 2022</span><span>Publication de la règle finale FSMA 204</span></div>
+      <div style="display:flex;gap:var(--s-3);align-items:center;background:var(--color-bg-2);padding:var(--s-3);border-radius:var(--r-sm)"><span style="font-weight:700;min-width:110px;color:var(--color-brand)">Janv. 2023</span><span>Entrée en vigueur</span></div>
+      <div style="display:flex;gap:var(--s-3);align-items:center;background:var(--color-err-soft);padding:var(--s-3);border-radius:var(--r-sm);border-left:3px solid var(--color-err)"><span style="font-weight:700;min-width:110px;color:var(--color-err)">20 janv. 2026</span><span><strong>Date de conformité</strong> — toutes les entreprises concernées doivent être conformes</span></div>
+      <div style="display:flex;gap:var(--s-3);align-items:center;background:var(--color-bg-2);padding:var(--s-3);border-radius:var(--r-sm)"><span style="font-weight:700;min-width:110px;color:var(--color-brand)">Après 2026</span><span>Contrôles FDA, refus d'entrée possible</span></div>
+    </div>` },
+  { title: "🛠️ Étape 5 — Utiliser cet outil (pas à pas)",
+    body: `<ol style="line-height:2">
+      <li><strong>Rechercher</strong> une denrée dans la barre latérale (ou taper quelques lettres).</li>
+      <li><strong>Cliquer</strong> sur la denrée → résumé (catégorie, FTL, score max coloré).</li>
+      <li><strong>Consulter</strong> le tableau des paires danger, trié par score décroissant.</li>
+      <li><strong>Filtrer</strong> par danger (texte) ou par score minimal (≥ 50 / 70 / 90).</li>
+      <li><strong>Visualiser</strong> le graphique en barres (top 10) et le radar des facteurs de risque.</li>
+      <li><strong>Annoter</strong> dans « Notes auditeur » (sauvegardées automatiquement).</li>
+      <li><strong>Exporter</strong> en CSV/JSON, template KDE/CTE, ou imprimer en PDF.</li>
+      <li><strong>Enregistrer</strong> un projet .RRM pour le reprendre plus tard.</li>
     </ol>` },
-  { title: "7. Références FDA",
+  { title: "🔗 Étape 6 — Fonctionnalités avancées",
+    body: `<ul>
+      <li><strong>Recherche globale</strong> — trouver toutes les denrées contenant un danger donné (ex. Salmonella).</li>
+      <li><strong>Historique</strong> — les 10 dernières denrées consultées (sidebar).</li>
+      <li><strong>Lien partageable</strong> — l'URL contient le code de la denrée sélectionnée (#030105).</li>
+      <li><strong>Thème clair/sombre</strong> — toggle en haut à droite (persisté).</li>
+      <li><strong>Mode hors ligne (PWA)</strong> — installable, fonctionne sans réseau après le premier chargement.</li>
+      <li><strong>Version des données</strong> — date de mise à jour FDA affichée ; alerte si &gt; 1 an.</li>
+    </ul>` },
+  { title: "📚 Références FDA officielles",
     body: `<ul>
       <li>RRM-FT Results (Tables 2A/2B) — <a href="https://www.fda.gov/media/166880/download" target="_blank" rel="noopener">FDA PDF</a></li>
       <li>Food Traceability List — <a href="https://cfsanappsexternal.fda.gov/scripts/FDARiskRankingModelforFoodTracingfinalrule/" target="_blank" rel="noopener">FDA web tool</a></li>
       <li>CTE/KDE — FSMA 204 — <a href="https://www.fda.gov/media/163132/download" target="_blank" rel="noopener">FDA PDF</a></li>
-      <li>Final Rule FSMA 204 — Federal Register</li>
+      <li>Final Rule FSMA 204 — Federal Register (2022)</li>
     </ul>
-    <p style="margin-top:var(--s-3);font-size:var(--t-xs);color:var(--color-text-3)">Données officielles FDA, aucun recalcul. Outil fourni à titre d'aide à la conformité.</p>` }
+    <p style="margin-top:var(--s-3);font-size:var(--t-xs);color:var(--color-text-3)">Données officielles FDA, aucun recalcul. Outil fourni à titre d'aide à la conformité — ne se substitue pas à un conseil réglementaire.</p>` }
 ];
 
 let guideIndex = 0;
@@ -638,6 +663,7 @@ function renderGuide(){
   $("#guideTitle").textContent = s.title;
   $("#guideBody").innerHTML = s.body;
   $("#guideCounter").textContent = (guideIndex+1)+" / "+GUIDE_SLIDES.length;
+  const prog = $("#guideProgress"); if(prog) prog.style.width = ((guideIndex+1)/GUIDE_SLIDES.length*100)+"%";
   const dots = $("#guideDots"); dots.innerHTML="";
   GUIDE_SLIDES.forEach((_,i)=>{
     const d=document.createElement("span");
