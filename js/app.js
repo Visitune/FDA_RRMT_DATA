@@ -5,7 +5,7 @@ const I18N = {
     all: "Toutes", ftlOnly: "FTL uniquement", highScore: "Score élevé",
     loading: "Chargement…", ready: "Prêt", error: "Erreur",
     selectCommodity: "Sélectionnez une denrée",
-    selectHint: "Choisissez un produit dans la liste à gauche (ou recherchez) pour afficher les paires danger et les scores C1–C7.",
+    selectHint: "Choisissez un produit dans la liste à gauche (ou recherchez) pour afficher les paires danger et les scores de risque.",
     tryDemo: "Essayer la démo (Tomates)",
     hazardPairs: "Paires danger (C1…C7 → score)",
     filterHazards: "Filtrer les dangers…",
