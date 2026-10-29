@@ -429,17 +429,93 @@ function bindEvents(){
   $("#btnTheme").addEventListener("click", ()=>setTheme(state.theme==="dark"?"light":"dark"));
   $("#btnSidebar").addEventListener("click", ()=>$("#sidebar").classList.toggle("open"));
   $("#btnPanel").addEventListener("click", ()=>$("#panel").classList.toggle("open"));
-  $("#btnHelp").addEventListener("click", ()=>$("#modalHelp").classList.add("open"));
-  $("#closeHelp").addEventListener("click", ()=>$("#modalHelp").classList.remove("open"));
-  $("#modalHelp").addEventListener("click", e=>{ if(e.target.id==="modalHelp") $("#modalHelp").classList.remove("open"); });
+  $("#btnHelp").addEventListener("click", openGuide);
+  $("#guidePrev").addEventListener("click", ()=>{ if(guideIndex>0){ guideIndex--; renderGuide(); } });
+  $("#guideNext").addEventListener("click", ()=>{ if(guideIndex<GUIDE_SLIDES.length-1){ guideIndex++; renderGuide(); } else { closeGuide(); } });
+  $("#guideClose").addEventListener("click", closeGuide);
+  $("#modalGuide").addEventListener("click", e=>{ if(e.target.id==="modalGuide") closeGuide(); });
   $("#demoBtn").addEventListener("click", ()=>selectCommodity("Tomatoes"));
   document.addEventListener("keydown", e=>{
-    if(e.key==="Escape"){ $("#modalHelp").classList.remove("open"); $("#sidebar").classList.remove("open"); $("#panel").classList.remove("open"); }
+    if(e.key==="Escape"){ $("#modalHelp").classList.remove("open"); $("#modalGuide").classList.remove("open"); $("#sidebar").classList.remove("open"); $("#panel").classList.remove("open"); }
     if((e.ctrlKey||e.metaKey) && e.key==="s"){ e.preventDefault(); saveRRM(); }
     if((e.ctrlKey||e.metaKey) && e.key==="e"){ e.preventDefault(); exportCSV(); }
   });
   window.addEventListener("resize", ()=>{ if(state.current.code) renderChart(); });
 }
+
+/* ===== Guide (slideshow) ===== */
+const GUIDE_SLIDES = [
+  { title: "1. Qu'est-ce que le RRM-FT ?",
+    body: `<p>Le <strong>Risk Ranking Model for Food Tracing (RRM-FT)</strong> est l'outil officiel de la FDA pour classer les risques de traçabilité des aliments selon la règle <strong>FSMA 204</strong> (Food Traceability Rule).</p>
+    <p>Il évalue, pour chaque <em>denrée</em>, les paires <em>denrée × danger</em> selon <strong>7 critères (C1 à C7)</strong> pour produire un <strong>score de risque</strong>. Ce score détermine si la denrée figure sur la <strong>Food Traceability List (FTL)</strong>.</p>
+    <p>Cet assistant utilise les données officielles FDA — <strong>aucun recalcul</strong>, les scores sont ceux de la FDA.</p>` },
+  { title: "2. Les 7 critères C1–C7",
+    body: `<ul>
+      <li><strong>C1</strong> — Fréquence de contamination</li>
+      <li><strong>C2</strong> — Gravité de la maladie</li>
+      <li><strong>C3</strong> — Difficulté de détection</li>
+      <li><strong>C4</strong> — Difficulté de traçabilité</li>
+      <li><strong>C5</strong> — Consommation / exposition</li>
+      <li><strong>C6</strong> — Impact économique</li>
+      <li><strong>C7</strong> — Vulnérabilité de la chaîne d'approvisionnement</li>
+    </ul>
+    <p>Le score final (0–100) est la combinaison pondérée. <span style="color:var(--risk-high);font-weight:700">≥ 80 = risque élevé</span>, <span style="color:var(--risk-med);font-weight:700">50–79 = moyen</span>, <span style="color:var(--risk-low);font-weight:700">&lt; 50 = faible</span>.</p>` },
+  { title: "3. La Food Traceability List (FTL)",
+    body: `<p>La FTL recense les aliments à haut risque pour lesquels la traçabilité renforcée s'applique : fromages frais au lait cru, poissons, coquillages, crustacés, légumes feuilles, tomates, poivrons, concombres, melons, fruits tropicaux, herbes fraîches, salades préparées, beurres de noix, œufs en coquille, etc.</p>
+    <p>Si votre denrée est sur la FTL, vous êtes soumis à la règle FSMA 204.</p>` },
+  { title: "4. Exigences pour les importateurs français",
+    body: `<ul>
+      <li><strong>KDE / CTE</strong> : enregistrer les Éléments de Données Clés à chaque Événement de Traçabilité Critique (réception, transformation, expédition).</li>
+      <li><strong>Code de lot de traçabilité</strong> : attribuer et propager un identifiant unique par lot.</li>
+      <li><strong>Délai de 24 h</strong> : fournir à la FDA, sur demande, les enregistrements sous forme de tableau triable dans les 24 heures.</li>
+      <li><strong>Conservation 2 ans</strong> : garder les enregistrements 2 ans au-delà de la date de vente.</li>
+      <li><strong>Vérification des fournisseurs étrangers (FSVP)</strong> : l'importateur est responsable de la conformité de ses fournisseurs.</li>
+    </ul>` },
+  { title: "5. Calendrier de mise en œuvre",
+    body: `<ul>
+      <li><strong>Nov. 2022</strong> — Publication de la règle finale FSMA 204.</li>
+      <li><strong>Janv. 2023</strong> — Entrée en vigueur.</li>
+      <li><strong>20 janv. 2026</strong> — <strong>Date de conformité</strong> : toutes les entreprises concernées doivent être conformes.</li>
+      <li><strong>Après 2026</strong> — Contrôles FDA, possibilité de refus d'entrée pour les importations non conformes.</li>
+    </ul>
+    <p><em>Les importateurs français exportant vers les États-Unis sont directement concernés.</em></p>` },
+  { title: "6. Comment utiliser cet outil",
+    body: `<ol>
+      <li><strong>Recherchez</strong> une denrée dans la barre latérale (ou tapez quelques lettres).</li>
+      <li><strong>Cliquez</strong> sur la denrée pour afficher le résumé (catégorie, FTL, score max).</li>
+      <li><strong>Consultez</strong> le tableau des paires danger, trié par score.</li>
+      <li><strong>Filtrez</strong> par danger ou par score minimal (≥ 50/70/90).</li>
+      <li><strong>Exportez</strong> en CSV/JSON ou imprimez pour votre dossier.</li>
+      <li><strong>Enregistrez</strong> un projet .RRM pour le reprendre plus tard.</li>
+    </ol>` },
+  { title: "7. Références FDA",
+    body: `<ul>
+      <li>RRM-FT Results (Tables 2A/2B) — <a href="https://www.fda.gov/media/166880/download" target="_blank" rel="noopener">FDA PDF</a></li>
+      <li>Food Traceability List — <a href="https://cfsanappsexternal.fda.gov/scripts/FDARiskRankingModelforFoodTracingfinalrule/" target="_blank" rel="noopener">FDA web tool</a></li>
+      <li>CTE/KDE — FSMA 204 — <a href="https://www.fda.gov/media/163132/download" target="_blank" rel="noopener">FDA PDF</a></li>
+      <li>Final Rule FSMA 204 — Federal Register</li>
+    </ul>
+    <p style="margin-top:var(--s-3);font-size:var(--t-xs);color:var(--color-text-3)">Données officielles FDA, aucun recalcul. Outil fourni à titre d'aide à la conformité.</p>` }
+];
+
+let guideIndex = 0;
+function renderGuide(){
+  const s = GUIDE_SLIDES[guideIndex];
+  $("#guideTitle").textContent = s.title;
+  $("#guideBody").innerHTML = s.body;
+  $("#guideCounter").textContent = (guideIndex+1)+" / "+GUIDE_SLIDES.length;
+  const dots = $("#guideDots"); dots.innerHTML="";
+  GUIDE_SLIDES.forEach((_,i)=>{
+    const d=document.createElement("span");
+    d.style.cssText="width:8px;height:8px;border-radius:50%;background:"+(i===guideIndex?"var(--color-brand)":"var(--color-bg-3)")+";display:inline-block;cursor:pointer";
+    d.addEventListener("click",()=>{guideIndex=i;renderGuide();});
+    dots.appendChild(d);
+  });
+  $("#guidePrev").disabled = guideIndex===0;
+  $("#guideNext").textContent = guideIndex===GUIDE_SLIDES.length-1 ? "Terminer ✓" : "Suivant ▶";
+}
+function openGuide(){ guideIndex=0; renderGuide(); $("#modalGuide").classList.add("open"); }
+function closeGuide(){ $("#modalGuide").classList.remove("open"); }
 
 /* ===== Init ===== */
 document.addEventListener("DOMContentLoaded", async ()=>{
@@ -447,5 +523,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   bindEvents();
   applyLang();
   await loadAll();
+  if(!localStorage.getItem("rrm-guide-seen")){ openGuide(); localStorage.setItem("rrm-guide-seen","1"); }
   log("Application initialisée.");
 });

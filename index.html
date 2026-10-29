@@ -30,7 +30,7 @@
       <button class="icon-btn" id="btnTheme" aria-label="Changer de thème">
         <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
       </button>
-      <button class="btn primary" id="btnHelp" style="min-height:36px;padding:6px 12px;font-size:12px">Aide</button>
+      <button class="btn primary" id="btnHelp" style="min-height:36px;padding:6px 12px;font-size:12px">Guide</button>
     </div>
   </header>
 
@@ -157,6 +157,25 @@
       <button class="btn ghost block" id="clearLog" style="margin-top:var(--s-2)">Effacer le journal</button>
     </div>
   </aside>
+</div>
+
+<!-- Guide modal (slideshow) -->
+<div class="modal-backdrop" id="modalGuide">
+  <div class="modal" style="max-width:720px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s-3)">
+      <h3 id="guideTitle" style="margin:0">Guide</h3>
+      <span id="guideCounter" class="pill muted">1 / 1</span>
+    </div>
+    <div id="guideBody" style="min-height:260px;font-size:var(--t-sm);color:var(--color-text-1);line-height:1.7"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:var(--s-4)">
+      <button class="btn ghost" id="guidePrev">◀ Précédent</button>
+      <div id="guideDots" style="display:flex;gap:6px"></div>
+      <button class="btn primary" id="guideNext">Suivant ▶</button>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:var(--s-2)">
+      <button class="btn ghost" id="guideClose" style="font-size:var(--t-xs)">Fermer</button>
+    </div>
+  </div>
 </div>
 
 <!-- Toast -->
