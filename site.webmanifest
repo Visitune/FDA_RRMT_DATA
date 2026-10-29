@@ -1,0 +1,13 @@
+{
+  "name": "RRM-FT Assistant",
+  "short_name": "RRM-FT",
+  "description": "FDA RRM-FT risk ranking for FSMA 204",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0a0d14",
+  "theme_color": "#37b24d",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }
+  ]
+}
+PYEOF

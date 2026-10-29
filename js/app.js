@@ -682,6 +682,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   bindEvents();
   applyLang();
   await loadAll();
+  if('serviceWorker' in navigator){ try { navigator.serviceWorker.register('sw.js'); } catch(e){} }
   // hash routing
   const h = decodeURIComponent((location.hash||"").replace(/^#/,""));
   if(h){ const it=(state.data.items||[]).find(e=>e.code===h||e.name===h); if(it) selectCommodity(it.name); }
