@@ -1,318 +1,185 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="dark">
 <head>
   <meta charset="utf-8" />
-  <title>RRM-FT Assistant — FSMA 204 (FR/EN)</title>
+  <title>RRM-FT Assistant v2 — FSMA 204</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <!-- ZIP local pour projets .RRM -->
+  <link rel="stylesheet" href="css/styles.css">
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
-  <style>
-    :root{--bg:#0b0c10;--panel:#111523;--panel2:#0e1220;--text:#eaf2f8;--muted:#8ea0b3;--line:#26324a;--ok:#38d9a9;--warn:#f59f00;--err:#fa5252}
-    *{box-sizing:border-box} html,body{margin:0;background:#0b0c10;color:var(--text);font:14px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial}
-    .wrap{max-width:1120px;margin:32px auto;padding:0 16px}
-    header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
-    h1{margin:0;font-size:22px}
-    .badge{font-size:12px;color:var(--muted)}
-    .card{background:var(--panel);border-radius:16px;padding:16px;box-shadow:0 14px 40px rgba(0,0,0,.25);margin:14px 0;border:1px solid #12192c}
-    .row{display:flex;gap:12px;flex-wrap:wrap}.col{flex:1 1 320px}
-    label{display:block;margin-bottom:8px;font-weight:600}
-    input,select,button{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}
-    button{cursor:pointer;background:#1a2140;border:1px solid #233055}
-    .chip{display:inline-block;padding:.2rem .6rem;border-radius:999px;font-weight:700;border:1px solid transparent}
-    .ok{background:rgba(56,217,169,.14);color:#7ef0c9;border-color:rgba(56,217,169,.35)}
-    .warn{background:rgba(245,159,0,.14);color:#ffce6a;border-color:rgba(245,159,0,.35)}
-    .bad{background:rgba(250,82,82,.14);color:#ff9a9a;border-color:rgba(250,82,82,.35)}
-    small.muted{color:var(--muted)} .right{margin-left:auto} .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
-    table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left}
-    th{background:#0e1426;position:sticky;top:0;z-index:1}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
-    .hidden{display:none}.mt8{margin-top:8px}.mt16{margin-top:16px}
-  </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div>
-      <h1>RRM-FT Assistant — FSMA 204 <span class="badge">web-only</span></h1>
-      <div class="badge">Données FDA RRM-FT officielles (aucun recalcul) — HACCP / GFSI / FSMA 204</div>
+<div class="app" id="app">
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="dot" aria-hidden="true"></span>
+      <span>RRM-FT Assistant</span>
+      <span class="pill muted">v2 · FSMA 204</span>
     </div>
-    <div style="display:flex;gap:8px">
-      <select id="lang"><option value="fr">Français (UI)</option><option value="en">English (UI)</option></select>
-      <button id="exportEN">Export EN (CSV)</button>
+    <div class="actions">
+      <button class="icon-btn" id="btnSidebar" title="Menu" aria-label="Ouvrir le menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <button class="icon-btn" id="btnPanel" title="Projet" aria-label="Ouvrir le panneau projet">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"/></svg>
+      </button>
+      <select id="lang" aria-label="Langue">
+        <option value="fr">FR</option>
+        <option value="en">EN</option>
+      </select>
+      <button class="icon-btn" id="btnTheme" aria-label="Changer de thème">
+        <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      </button>
+      <button class="btn primary" id="btnHelp" style="min-height:36px;padding:6px 12px;font-size:12px">Aide</button>
     </div>
   </header>
 
-  <section class="card">
-    <div class="row">
-      <div class="col">
-        <label>Sources FDA + intégrité</label>
-        <div class="mono" style="display:flex;gap:10px;align-items:center">
-          <span id="statusBadge" class="chip warn">loading…</span>
-          <small id="counts" class="muted right">–</small>
-        </div>
-        <small class="muted">Charge 2A/1A/2B depuis ce dépôt. Si <code>manifest.json</code> + <code>metadata/checksums.json</code> sont présents, vérifie l’intégrité (SHA-256).</small>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="searchbox">
+      <input type="search" id="q" placeholder="Rechercher une denrée…" aria-label="Rechercher" />
+    </div>
+    <div class="filters" id="filters">
+      <button class="chip-filter active" data-filter="all">Toutes</button>
+      <button class="chip-filter" data-filter="ftl">FTL uniquement</button>
+      <button class="chip-filter" data-filter="high">Score élevé</button>
+    </div>
+    <div class="list" id="list" role="listbox" aria-label="Liste des denrées"></div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main" id="main">
+    <!-- Status bar -->
+    <div class="card" style="padding:var(--s-3) var(--s-5);display:flex;align-items:center;gap:var(--s-3)">
+      <span id="statusBadge" class="pill warn">Chargement…</span>
+      <span id="counts" class="muted" style="font-size:var(--t-sm)">–</span>
+      <span style="margin-left:auto;font-size:var(--t-xs);color:var(--color-text-3)">Données FDA officielles — aucun recalcul</span>
+    </div>
+
+    <!-- Summary -->
+    <section class="card" id="summaryCard">
+      <div id="summaryEmpty" class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h6"/></svg>
+        <h3>Sélectionnez une denrée</h3>
+        <p>Choisissez un produit dans la liste à gauche (ou recherchez) pour afficher les paires danger et les scores C1–C7.</p>
+        <button class="btn primary" id="demoBtn">Essayer la démo (Tomates)</button>
       </div>
-      <div class="col">
-        <label>Recherche / sélection denrée (liste = fichiers 2B présents dans <em>manifest.json</em>)</label>
-        <div style="display:flex;gap:8px">
-          <input id="q" placeholder="Rechercher (FR/EN)"/>
-          <select id="commoditySelect"></select>
-        </div>
-        <div class="mt8" style="display:flex;gap:8px;align-items:center">
-          <span id="ftlBadge" class="chip hidden">FTL</span>
-          <span id="aggScore" class="mono"></span>
-          <small id="catName" class="muted right"></small>
+      <div id="summaryContent" class="hidden">
+        <div class="summary">
+          <div>
+            <h2 class="name" id="commodityName">—</h2>
+            <div class="meta" id="commodityMeta">—</div>
+            <div class="badges" id="commodityBadges"></div>
+          </div>
+          <div class="stat">
+            <div class="num" id="aggScore">—</div>
+            <div class="lbl">Score max</div>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="card">
-    <div style="display:flex;align-items:center">
-      <h3 style="margin:0">Pairs danger (C1..C7 → score)</h3>
-      <small class="muted right">Méthode & critères : FDA RRM-FT</small>
-    </div>
-    <div style="max-height:440px;overflow:auto;margin-top:6px">
-      <table id="pairsTable">
-        <thead><tr><th>Hazard</th><th>C1</th><th>C2</th><th>C3</th><th>C4</th><th>C5</th><th>C6</th><th>C7</th><th>Score</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
+    <!-- Pairs table -->
+    <section class="card" id="pairsCard">
+      <div class="section-title">
+        <span>Paires danger (C1…C7 → score)</span>
+        <span class="sub" id="pairsCount">—</span>
+      </div>
+      <div style="display:flex;gap:var(--s-2);margin-bottom:var(--s-3);flex-wrap:wrap">
+        <input type="search" id="hazardFilter" placeholder="Filtrer les dangers…" style="flex:1;min-width:180px;padding:8px 12px;border:1px solid var(--color-line);background:var(--color-bg-2);color:var(--color-text-0);border-radius:var(--r-sm);font-size:var(--t-sm)" />
+        <select id="scoreFilter" style="width:160px;padding:8px 12px;border:1px solid var(--color-line);background:var(--color-bg-2);color:var(--color-text-0);border-radius:var(--r-sm);font-size:var(--t-sm)">
+          <option value="0">Tous les scores</option>
+          <option value="50">Score ≥ 50</option>
+          <option value="70">Score ≥ 70</option>
+          <option value="90">Score ≥ 90</option>
+        </select>
+        <button class="btn ghost" id="sortReset" style="min-height:34px">Réinitialiser tri</button>
+      </div>
+      <div class="table-wrap">
+        <table id="pairsTable">
+          <thead>
+            <tr>
+              <th data-key="hazard">Danger <span class="sort-ind"></span></th>
+              <th data-key="severity">Sévérité</th>
+              <th data-key="contam">Fréq. contam.</th>
+              <th data-key="risk_score">Score <span class="sort-ind"></span></th>
+              <th>Niveau</th>
+            </tr>
+          </thead>
+          <tbody id="pairsBody"></tbody>
+        </table>
+      </div>
+    </section>
 
-  <section class="card">
-    <h3 style="margin:0">Projet d’analyse (.RRM)</h3>
-    <div class="grid mt8">
-      <div><label>Nom</label><input id="projName" placeholder="Ex. Analyse — Tomates RTE"></div>
-      <div><label>Réf./Client</label><input id="projRef" placeholder="Ex. CN-2025-001 / Client X"></div>
-      <div><label>Notes</label><input id="projNotes" placeholder="Contexte, sites, etc."></div>
-      <div><label>Pièces jointes</label><input id="files" type="file" multiple></div>
-    </div>
-    <div class="row mt16">
-      <div class="col"><button id="saveRRM">💾 Enregistrer (.RRM)</button></div>
-      <div class="col"><label>Charger .RRM</label><input id="openRRM" type="file" accept=".rrm,.zip"></div>
-    </div>
-    <div class="mt16"><label>Journal</label><div id="log" class="mono" style="background:#0f1320;border-radius:10px;padding:10px;min-height:80px;max-height:180px;overflow:auto"></div></div>
-  </section>
+    <!-- Chart -->
+    <section class="card" id="chartCard">
+      <div class="section-title">
+        <span>Visualisation des scores</span>
+        <span class="sub">Top 10 paires</span>
+      </div>
+      <div class="chart"><canvas id="chart"></canvas></div>
+    </section>
+  </main>
 
-  <section class="card">
-    <details>
-      <summary><strong>Références FDA</strong></summary>
-      <ul>
-        <li>RRM-FT Results (Tables 2A/2B) — PDF : <a href="https://www.fda.gov/media/166880/download" target="_blank" rel="noopener">FDA</a></li>
-        <li>RRM-FT web tool (exports : aggregatedAll / aggregatedFTL / pairsAll / pairsFTL)</li>
-        <li>Food Traceability List (FTL) : <a href="https://cfsanappsexternal.fda.gov/scripts/FDARiskRankingModelforFoodTracingfinalrule/" target="_blank" rel="noopener">FDA</a></li>
-        <li>CTE/KDE — FSMA 204 : <a href="https://www.fda.gov/media/163132/download" target="_blank" rel="noopener">FDA</a></li>
-      </ul>
-    </details>
-  </section>
+  <!-- Right panel -->
+  <aside class="panel" id="panel">
+    <div class="tabs">
+      <button class="tab active" data-tab="project">Projet</button>
+      <button class="tab" data-tab="export">Export</button>
+      <button class="tab" data-tab="log">Journal</button>
+    </div>
+
+    <div class="tabpanel active" data-tab="project">
+      <div class="field"><label>Nom</label><input id="projName" placeholder="Ex. Analyse — Tomates RTE" /></div>
+      <div class="field"><label>Réf./Client</label><input id="projRef" placeholder="Ex. CN-2025-001 / Client X" /></div>
+      <div class="field"><label>Notes</label><textarea id="projNotes" placeholder="Contexte, sites, observations…"></textarea></div>
+      <div class="field"><label>Pièces jointes</label><input id="files" type="file" multiple /></div>
+      <div style="display:flex;gap:var(--s-2)">
+        <button class="btn primary block" id="saveRRM">💾 Enregistrer (.RRM)</button>
+      </div>
+      <div style="margin-top:var(--s-3)">
+        <button class="btn block" id="openRRMBtn">📂 Charger .RRM</button>
+        <input id="openRRM" type="file" accept=".rrm,.zip" style="display:none" />
+      </div>
+      <div class="mt8" style="font-size:var(--t-xs);color:var(--color-text-3)">Raccourcis : Ctrl+S enregistrer · Ctrl+E exporter</div>
+    </div>
+
+    <div class="tabpanel" data-tab="export">
+      <p style="font-size:var(--t-sm);color:var(--color-text-2)">Exporter les résultats de l'analyse en cours.</p>
+      <button class="btn block" id="exportCSV">Exporter CSV (EN)</button>
+      <button class="btn block" id="exportJSON" style="margin-top:var(--s-2)">Exporter JSON</button>
+      <button class="btn block" id="exportPrint" style="margin-top:var(--s-2)">Imprimer / PDF</button>
+      <div class="mt16" style="font-size:var(--t-xs);color:var(--color-text-3)">Les exports contiennent les scores officiels FDA (aucun recalcul).</div>
+    </div>
+
+    <div class="tabpanel" data-tab="log">
+      <div class="logbox" id="log"></div>
+      <button class="btn ghost block" id="clearLog" style="margin-top:var(--s-2)">Effacer le journal</button>
+    </div>
+  </aside>
 </div>
 
-<script>
-/* ====== utilitaires ====== */
-const $ = s => document.querySelector(s);
-const $tb = s => document.querySelector(s).tBodies[0];
-const state = {
-  manifest:null, checksums:null,
-  twoA:null, oneA:null, i18n:{category:{}, commodity:{}, hazard:{}},
-  lang:"fr", log:[],
-  itemsFromPairs:[], // {path, category, commodity, onFTL, agg}
-  current:{path:null, category:null, commodity:null, pairs:[]}
-};
+<!-- Toast -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-const toHex = ab => [...new Uint8Array(ab)].map(b=>b.toString(16).padStart(2,"0")).join("");
-async function sha256(ab){ return toHex(await crypto.subtle.digest("SHA-256", ab)); }
-function clean(s){ return String(s||"").replace(/\u00A0/g," ").replace(/\s+/g," ").trim(); }
-function log(msg){ const t=new Date().toISOString(); const d=$("#log"); d.textContent=(d.textContent?d.textContent+"\n":"")+`[${t}] ${msg}`; state.log.push({t,msg}); }
-async function fetchAB(path){ const r=await fetch(path,{cache:"no-store"}); if(!r.ok) throw new Error(`${path} -> HTTP ${r.status}`); return await r.arrayBuffer(); }
-async function fetchJSON(path){ const ab=await fetchAB(path); let json=null; try{ json=JSON.parse(new TextDecoder().decode(ab)); }catch{} return {json,ab,path}; }
+<!-- Modal help -->
+<div class="modal-backdrop" id="modalHelp">
+  <div class="modal">
+    <h3>Aide & raccourcis</h3>
+    <p><strong>RRM-FT Assistant</strong> utilise les données officielles FDA (aucun recalcul) pour évaluer les risques de traçabilité (FSMA 204).</p>
+    <ul style="font-size:var(--t-sm);color:var(--color-text-1);line-height:1.7">
+      <li><strong>Recherche</strong> : tapez dans la barre latérale pour filtrer les denrées.</li>
+      <li><strong>FTL</strong> : badge vert = produit sur la Food Traceability List.</li>
+      <li><strong>Score</strong> : valeur maximale parmi les paires danger.</li>
+      <li><strong>Tri</strong> : cliquez sur l'en-tête d'une colonne.</li>
+      <li><strong>Raccourcis</strong> : Ctrl+S enregistrer, Ctrl+E exporter, Échap fermer.</li>
+    </ul>
+    <div style="display:flex;justify-content:flex-end;margin-top:var(--s-4)">
+      <button class="btn primary" id="closeHelp">Fermer</button>
+    </div>
+  </div>
+</div>
 
-/* ====== intégrité via manifest/checksums (opportuniste) ====== */
-async function verifyIfPossible(path,ab){
-  const d=await sha256(ab);
-  const man = state.manifest?.sources?.find(s=>s.path===path)?.sha256;
-  const chk = state.checksums?.[path];
-  if(man && man!==d) throw new Error(`SHA mismatch (manifest) for ${path}`);
-  if(chk && chk!==d) throw new Error(`SHA mismatch (checksums) for ${path}`);
-}
-
-/* ====== normalisation formats 2A/1A ====== */
-function norm2A(x){
-  if(!x) return {commodities:[]};
-  if(Array.isArray(x)) return {commodities:x};
-  if(x.commodities) return x;
-  if(x.items) return {commodities:x.items};
-  if(x.data) return {commodities:x.data};
-  const v=Object.values(x); if(Array.isArray(v[0])) return {commodities:v[0]};
-  return {commodities:[]};
-}
-function norm1A(x){
-  if(!x) return {items:[]};
-  if(Array.isArray(x)) return {items:x};
-  if(x.items) return x;
-  if(x.commodities) return {items:x.commodities};
-  if(x.data) return {items:x.data};
-  const v=Object.values(x); if(Array.isArray(v[0])) return {items:v[0]};
-  return {items:[]};
-}
-
-/* ====== chargement principal (zéro 404) ====== */
-async function loadAll(){
-  const badge=$("#statusBadge"); badge.textContent="loading…"; badge.className="chip warn";
-
-  // 1) manifest + checksums (source de vérité pour lister les 2B)
-  try{ state.manifest = (await fetchJSON("manifest.json")).json; }catch{ state.manifest=null; }
-  try{
-    // checksums seulement si le fichier existe (évite 404)
-    if (state.manifest?.sources?.some(s=>s.path==="metadata/checksums.json"))
-      state.checksums = (await fetchJSON("metadata/checksums.json")).json;
-  }catch{ state.checksums=null; }
-
-  // 2) 2A / 1A si listés, sinon on essaie en/ puis racine tout en évitant 404 si absent du manifest
-  const path2A = state.manifest?.sources?.find(s=>/commodities_table_2A\.json$/.test(s.path))?.path;
-  const path1A = state.manifest?.sources?.find(s=>/ftl_table_1A\.json$/.test(s.path))?.path;
-  if (path2A){ const r=await fetchJSON(path2A); await verifyIfPossible(path2A,r.ab); state.twoA=norm2A(r.json); } else { state.twoA={commodities:[]}; }
-  if (path1A){ const r=await fetchJSON(path1A); await verifyIfPossible(path1A,r.ab); state.oneA=norm1A(r.json); } else { state.oneA={items:[]}; }
-
-  // 3) i18n FR seulement si présent dans manifest
-  const pathFR = state.manifest?.sources?.find(s=>/i18n\/fr_map\.json$/.test(s.path))?.path;
-  if (pathFR){ try{ const r=await fetchJSON(pathFR); state.i18n=r.json||state.i18n; }catch{} }
-
-  // 4) Construire la liste réelle à partir des chemins pairs_table_2B/ présents dans manifest
-  const pairPaths = (state.manifest?.sources||[])
-    .map(s=>s.path)
-    .filter(p=>/pairs_table_2B\//.test(p) && /\.json$/.test(p));
-
-  state.itemsFromPairs=[];
-  for(const p of pairPaths){
-    try{
-      const {json,ab}=await fetchJSON(p); await verifyIfPossible(p,ab);
-      const about=json?.about||{};
-      const cat=clean(about.category||about.Category||"");
-      const com=clean(about.commodity||about.Commodity||"");
-      if(!com) continue;
-      // FTL/score agrégé depuis 2A si possible (match sur commodity propre)
-      let onFTL=false, agg="";
-      const r2A=(state.twoA?.commodities||[]).find(r=>clean(r.commodity??r.Commodity??"")===com);
-      if(r2A){ onFTL=!!(r2A.onFTL??r2A.on_ftl??r2A.ftl); agg=r2A.riskScoreCommodity??r2A.agg_score??r2A.aggScore??""; }
-      state.itemsFromPairs.push({path:p, category:cat, commodity:com, onFTL, agg});
-    }catch(e){ /* ignore */ }
-  }
-
-  // 5) UI
-  const n2B = state.itemsFromPairs.length;
-  const n2A = state.twoA?.commodities?.length || 0;
-  const n1A = state.oneA?.items?.length || 0;
-  $("#counts").textContent = `${n1A} FTL • ${n2A} commodities • ${n2B} files 2B`;
-  badge.textContent = "intégrité OK (si manifest/checksums présents)";
-  badge.className = "chip ok";
-
-  populateFromPairs();
-  log("Données FDA chargées (liste basée sur manifest.json).");
-}
-
-/* ====== liste déroulante depuis itemsFromPairs ====== */
-function populateFromPairs(){
-  const sel=$("#commoditySelect"); const q=($("#q").value||"").toLowerCase();
-  const items=state.itemsFromPairs
-    .filter(r=>!q || [r.commodity,r.category].some(x=>x.toLowerCase().includes(q)))
-    .sort((a,b)=>a.commodity.localeCompare(b.commodity));
-  sel.innerHTML="";
-  for(const r of items){
-    const o=document.createElement("option");
-    o.value=r.path; o.textContent=`${r.commodity}${r.onFTL?" [FTL]":""} — ${r.category||"—"}`;
-    o.dataset.cat=r.category||""; o.dataset.com=r.commodity; o.dataset.agg=r.agg||""; o.dataset.ftl=r.onFTL?"1":"0";
-    sel.appendChild(o);
-  }
-  if(items.length){ sel.selectedIndex=0; onCommodityChange(); } else { renderPairs([]); $("#ftlBadge").className="chip hidden"; $("#aggScore").textContent=""; $("#catName").textContent=""; }
-}
-
-/* ====== chargement d’un fichier 2B SÉLECTIONNÉ (chemin exact) ====== */
-async function onCommodityChange(){
-  const opt=$("#commoditySelect").selectedOptions[0]; if(!opt) return;
-  const path=opt.value, category=opt.dataset.cat, commodity=opt.dataset.com;
-  const {json,ab}=await fetchJSON(path); await verifyIfPossible(path,ab);
-  const pairs=Array.isArray(json)?json:(json?.pairs||[]);
-  const rows=pairs.map(p=>({
-    hazard: p.hazard ?? p.Hazard ?? p.hazard_name ?? p.hazardName ?? "",
-    C1:+p.C1, C2:+p.C2, C3:+p.C3, C4:+p.C4, C5:+p.C5, C6:+p.C6, C7:+p.C7,
-    riskScorePair:+(p.riskScorePair ?? p.pairRiskScore ?? p.risk ?? p.score)
-  })).filter(p=>p.hazard);
-
-  const onFTL=opt.dataset.ftl==="1", agg=opt.dataset.agg;
-  $("#ftlBadge").className=`chip ${onFTL?"ok":"hidden"}`; $("#ftlBadge").textContent=onFTL?"FTL":"";
-  $("#aggScore").textContent=agg?`aggregated score: ${agg}`:"";
-  $("#catName").textContent=`${category||"—"} • ${commodity}`;
-
-  state.current={path,category,commodity,pairs:rows};
-  renderPairs(rows);
-  log(`Ouverture denrée: ${category||"—"} — ${commodity}`);
-}
-
-/* ====== rendu du tableau ====== */
-function renderPairs(rows){
-  const tb=$tb("#pairsTable"); tb.innerHTML="";
-  for(const r of rows){
-    const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${r.hazard}</td>
-      <td>${r.C1}</td><td>${r.C2}</td><td>${r.C3}</td><td>${r.C4}</td><td>${r.C5}</td><td>${r.C6}</td><td>${r.C7}</td>
-      <td class="mono">${r.riskScorePair}</td>`;
-    tb.appendChild(tr);
-  }
-}
-
-/* ====== projets .RRM ====== */
-async function saveRRM(){
-  if(!state.current.path){ alert("Choisis d’abord une denrée."); return; }
-  const zip=new JSZip();
-  const proj={schemaVersion:"rrmft-project-1.0",savedAt:new Date().toISOString(),uiLang:state.lang,
-    selection:{path:state.current.path,category:state.current.category,commodity:state.current.commodity},
-    results:state.current.pairs,notes:{name:$("#projName").value,ref:$("#projRef").value,notes:$("#projNotes").value},log:state.log};
-  zip.file("project.json", JSON.stringify(proj,null,2));
-  for(const f of $("#files").files){ zip.file("attachments/"+f.name, await f.arrayBuffer()); }
-  const blob=await zip.generateAsync({type:"blob"});
-  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
-  a.download=`${(state.current.commodity||"rrmft").toLowerCase().replace(/[^a-z0-9]+/g,"_")}.rrm`; a.click(); URL.revokeObjectURL(a.href);
-  log("Projet sauvegardé (.RRM).");
-}
-async function openRRM(ev){
-  const f=ev.target.files?.[0]; if(!f) return;
-  const zip=await JSZip.loadAsync(await f.arrayBuffer());
-  const proj=JSON.parse(await zip.file("project.json").async("string"));
-  state.lang=proj.uiLang||"fr"; $("#lang").value=state.lang;
-  $("#projName").value=proj?.notes?.name||""; $("#projRef").value=proj?.notes?.ref||""; $("#projNotes").value=proj?.notes?.notes||"";
-  state.log=proj?.log||[];
-  // si le chemin existe encore dans la liste
-  for (const opt of $("#commoditySelect").options){
-    if (opt.value === proj?.selection?.path){ $("#commoditySelect").value=opt.value; await onCommodityChange(); break; }
-  }
-  log("Projet chargé (.RRM).");
-}
-
-/* ====== export EN (CSV) ====== */
-function exportEN(){
-  const rows=[["Category","Commodity","Hazard","C1","C2","C3","C4","C5","C6","C7","PairRisk"]];
-  for(const p of (state.current.pairs||[])){ rows.push([state.current.category,state.current.commodity,p.hazard,p.C1,p.C2,p.C3,p.C4,p.C5,p.C6,p.C7,p.riskScorePair]); }
-  const csv=rows.map(r=>r.map(x=>`"${String(x).replaceAll('"','""')}"`).join(",")).join("\n");
-  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
-  a.download=`${(state.current.commodity||"export").toLowerCase().replace(/[^a-z0-9]+/g,"_")}_EN.csv`; a.click(); URL.revokeObjectURL(a.href);
-}
-
-/* ====== événements UI ====== */
-$("#lang").addEventListener("change", ()=>{ state.lang=$("#lang").value; /* labels plus tard */ });
-$("#q").addEventListener("input", ()=>populateFromPairs());
-$("#commoditySelect").addEventListener("change", onCommodityChange);
-$("#saveRRM").addEventListener("click", saveRRM);
-$("#openRRM").addEventListener("change", openRRM);
-$("#exportEN").addEventListener("click", exportEN);
-
-/* ====== GO ====== */
-loadAll().catch(err=>{
-  $("#statusBadge").className="chip bad";
-  $("#statusBadge").textContent="erreur chargement";
-  log("ERREUR: "+(err?.message||err));
-  alert("Erreur de chargement.\n"+(err?.message||err));
-});
-</script>
+<script src="js/app.js" defer></script>
 </body>
 </html>

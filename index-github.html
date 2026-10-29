@@ -1,398 +1,185 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="fr" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FDA RRM-FT Assistant - GitHub Version</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <meta name="description" content="FDA Risk Ranking Model for Food Tracing - FSMA 204 Rule">
+  <meta charset="utf-8" />
+  <title>RRM-FT Assistant v2 — FSMA 204</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
 </head>
 <body>
-    <header>
-        <h1>FDA RRM-FT Assistant</h1>
-        <p>Risk Ranking Model for Food Tracing (FSMA 204 Rule)</p>
-    </header>
+<div class="app" id="app">
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="dot" aria-hidden="true"></span>
+      <span>RRM-FT Assistant</span>
+      <span class="pill muted">v2 · FSMA 204</span>
+    </div>
+    <div class="actions">
+      <button class="icon-btn" id="btnSidebar" title="Menu" aria-label="Ouvrir le menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <button class="icon-btn" id="btnPanel" title="Projet" aria-label="Ouvrir le panneau projet">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"/></svg>
+      </button>
+      <select id="lang" aria-label="Langue">
+        <option value="fr">FR</option>
+        <option value="en">EN</option>
+      </select>
+      <button class="icon-btn" id="btnTheme" aria-label="Changer de thème">
+        <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      </button>
+      <button class="btn primary" id="btnHelp" style="min-height:36px;padding:6px 12px;font-size:12px">Aide</button>
+    </div>
+  </header>
 
-    <main>
-        <div class="controls">
-            <select id="lang">
-                <option value="fr">Français</option>
-                <option value="en">English</option>
-            </select>
-            
-            <select id="commoditySelect">
-                <option value="">Select a commodity...</option>
-            </select>
-            
-            <input type="search" id="q" placeholder="Search commodities..." aria-label="Search">
-            
-            <span id="statusBadge" class="pill">Loading...</span>
-            <span id="counts"></span>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="searchbox">
+      <input type="search" id="q" placeholder="Rechercher une denrée…" aria-label="Rechercher" />
+    </div>
+    <div class="filters" id="filters">
+      <button class="chip-filter active" data-filter="all">Toutes</button>
+      <button class="chip-filter" data-filter="ftl">FTL uniquement</button>
+      <button class="chip-filter" data-filter="high">Score élevé</button>
+    </div>
+    <div class="list" id="list" role="listbox" aria-label="Liste des denrées"></div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main" id="main">
+    <!-- Status bar -->
+    <div class="card" style="padding:var(--s-3) var(--s-5);display:flex;align-items:center;gap:var(--s-3)">
+      <span id="statusBadge" class="pill warn">Chargement…</span>
+      <span id="counts" class="muted" style="font-size:var(--t-sm)">–</span>
+      <span style="margin-left:auto;font-size:var(--t-xs);color:var(--color-text-3)">Données FDA officielles — aucun recalcul</span>
+    </div>
+
+    <!-- Summary -->
+    <section class="card" id="summaryCard">
+      <div id="summaryEmpty" class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h6"/></svg>
+        <h3>Sélectionnez une denrée</h3>
+        <p>Choisissez un produit dans la liste à gauche (ou recherchez) pour afficher les paires danger et les scores C1–C7.</p>
+        <button class="btn primary" id="demoBtn">Essayer la démo (Tomates)</button>
+      </div>
+      <div id="summaryContent" class="hidden">
+        <div class="summary">
+          <div>
+            <h2 class="name" id="commodityName">—</h2>
+            <div class="meta" id="commodityMeta">—</div>
+            <div class="badges" id="commodityBadges"></div>
+          </div>
+          <div class="stat">
+            <div class="num" id="aggScore">—</div>
+            <div class="lbl">Score max</div>
+          </div>
         </div>
+      </div>
+    </section>
 
-        <div class="results">
-            <div class="summary">
-                <span id="ftlBadge" class="pill hidden">FTL</span>
-                <span id="catName"></span>
-                <span id="aggScore"></span>
-            </div>
+    <!-- Pairs table -->
+    <section class="card" id="pairsCard">
+      <div class="section-title">
+        <span>Paires danger (C1…C7 → score)</span>
+        <span class="sub" id="pairsCount">—</span>
+      </div>
+      <div style="display:flex;gap:var(--s-2);margin-bottom:var(--s-3);flex-wrap:wrap">
+        <input type="search" id="hazardFilter" placeholder="Filtrer les dangers…" style="flex:1;min-width:180px;padding:8px 12px;border:1px solid var(--color-line);background:var(--color-bg-2);color:var(--color-text-0);border-radius:var(--r-sm);font-size:var(--t-sm)" />
+        <select id="scoreFilter" style="width:160px;padding:8px 12px;border:1px solid var(--color-line);background:var(--color-bg-2);color:var(--color-text-0);border-radius:var(--r-sm);font-size:var(--t-sm)">
+          <option value="0">Tous les scores</option>
+          <option value="50">Score ≥ 50</option>
+          <option value="70">Score ≥ 70</option>
+          <option value="90">Score ≥ 90</option>
+        </select>
+        <button class="btn ghost" id="sortReset" style="min-height:34px">Réinitialiser tri</button>
+      </div>
+      <div class="table-wrap">
+        <table id="pairsTable">
+          <thead>
+            <tr>
+              <th data-key="hazard">Danger <span class="sort-ind"></span></th>
+              <th data-key="severity">Sévérité</th>
+              <th data-key="contam">Fréq. contam.</th>
+              <th data-key="risk_score">Score <span class="sort-ind"></span></th>
+              <th>Niveau</th>
+            </tr>
+          </thead>
+          <tbody id="pairsBody"></tbody>
+        </table>
+      </div>
+    </section>
 
-            <table id="pairsTable">
-                <thead>
-                    <tr>
-                        <th>Hazard</th>
-                        <th>C1</th>
-                        <th>C2</th>
-                        <th>C3</th>
-                        <th>C4</th>
-                        <th>C5</th>
-                        <th>C6</th>
-                        <th>C7</th>
-                        <th>Score</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+    <!-- Chart -->
+    <section class="card" id="chartCard">
+      <div class="section-title">
+        <span>Visualisation des scores</span>
+        <span class="sub">Top 10 paires</span>
+      </div>
+      <div class="chart"><canvas id="chart"></canvas></div>
+    </section>
+  </main>
 
-        <div class="project">
-            <h3>Project Management</h3>
-            <input type="text" id="projName" placeholder="Project name">
-            <input type="text" id="projRef" placeholder="Reference">
-            <textarea id="projNotes" placeholder="Notes"></textarea>
-            <input type="file" id="files" multiple>
-            <button id="saveRRM">Save .RRM</button>
-            <input type="file" id="openRRM" accept=".rrm" style="display: none;">
-            <button onclick="document.getElementById('openRRM').click()">Open .RRM</button>
-        </div>
+  <!-- Right panel -->
+  <aside class="panel" id="panel">
+    <div class="tabs">
+      <button class="tab active" data-tab="project">Projet</button>
+      <button class="tab" data-tab="export">Export</button>
+      <button class="tab" data-tab="log">Journal</button>
+    </div>
 
-        <div class="log">
-            <h3>Activity Log</h3>
-            <pre id="log"></pre>
-        </div>
-    </main>
+    <div class="tabpanel active" data-tab="project">
+      <div class="field"><label>Nom</label><input id="projName" placeholder="Ex. Analyse — Tomates RTE" /></div>
+      <div class="field"><label>Réf./Client</label><input id="projRef" placeholder="Ex. CN-2025-001 / Client X" /></div>
+      <div class="field"><label>Notes</label><textarea id="projNotes" placeholder="Contexte, sites, observations…"></textarea></div>
+      <div class="field"><label>Pièces jointes</label><input id="files" type="file" multiple /></div>
+      <div style="display:flex;gap:var(--s-2)">
+        <button class="btn primary block" id="saveRRM">💾 Enregistrer (.RRM)</button>
+      </div>
+      <div style="margin-top:var(--s-3)">
+        <button class="btn block" id="openRRMBtn">📂 Charger .RRM</button>
+        <input id="openRRM" type="file" accept=".rrm,.zip" style="display:none" />
+      </div>
+      <div class="mt8" style="font-size:var(--t-xs);color:var(--color-text-3)">Raccourcis : Ctrl+S enregistrer · Ctrl+E exporter</div>
+    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script>
-        // GitHub-compatible version
-        const GITHUB_BASE_URL = 'https://raw.githubusercontent.com/Visitune/FDA_RRMT_DATA/main/';
-        
-        class RRMFTApp {
-            constructor() {
-                this.state = {
-                    lang: 'fr',
-                    data: { oneA: null, twoA: null, i18n: { hazard: {}, commodity: {}, category: {} } },
-                    current: { commodity: null, category: null, pairs: null },
-                    log: []
-                };
-                this.init();
-            }
+    <div class="tabpanel" data-tab="export">
+      <p style="font-size:var(--t-sm);color:var(--color-text-2)">Exporter les résultats de l'analyse en cours.</p>
+      <button class="btn block" id="exportCSV">Exporter CSV (EN)</button>
+      <button class="btn block" id="exportJSON" style="margin-top:var(--s-2)">Exporter JSON</button>
+      <button class="btn block" id="exportPrint" style="margin-top:var(--s-2)">Imprimer / PDF</button>
+      <div class="mt16" style="font-size:var(--t-xs);color:var(--color-text-3)">Les exports contiennent les scores officiels FDA (aucun recalcul).</div>
+    </div>
 
-            async init() {
-                this.cacheElements();
-                this.bindEvents();
-                await this.loadData();
-            }
+    <div class="tabpanel" data-tab="log">
+      <div class="logbox" id="log"></div>
+      <button class="btn ghost block" id="clearLog" style="margin-top:var(--s-2)">Effacer le journal</button>
+    </div>
+  </aside>
+</div>
 
-            cacheElements() {
-                this.elements = {
-                    langSelect: document.getElementById('lang'),
-                    commoditySelect: document.getElementById('commoditySelect'),
-                    searchInput: document.getElementById('q'),
-                    statusBadge: document.getElementById('statusBadge'),
-                    counts: document.getElementById('counts'),
-                    ftlBadge: document.getElementById('ftlBadge'),
-                    aggScore: document.getElementById('aggScore'),
-                    catName: document.getElementById('catName'),
-                    pairsTable: document.getElementById('pairsTable'),
-                    projName: document.getElementById('projName'),
-                    projRef: document.getElementById('projRef'),
-                    projNotes: document.getElementById('projNotes'),
-                    filesInput: document.getElementById('files'),
-                    saveRRM: document.getElementById('saveRRM'),
-                    openRRM: document.getElementById('openRRM'),
-                    log: document.getElementById('log')
-                };
-            }
+<!-- Toast -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-            bindEvents() {
-                this.elements.langSelect.addEventListener('change', (e) => {
-                    this.setLanguage(e.target.value);
-                });
+<!-- Modal help -->
+<div class="modal-backdrop" id="modalHelp">
+  <div class="modal">
+    <h3>Aide & raccourcis</h3>
+    <p><strong>RRM-FT Assistant</strong> utilise les données officielles FDA (aucun recalcul) pour évaluer les risques de traçabilité (FSMA 204).</p>
+    <ul style="font-size:var(--t-sm);color:var(--color-text-1);line-height:1.7">
+      <li><strong>Recherche</strong> : tapez dans la barre latérale pour filtrer les denrées.</li>
+      <li><strong>FTL</strong> : badge vert = produit sur la Food Traceability List.</li>
+      <li><strong>Score</strong> : valeur maximale parmi les paires danger.</li>
+      <li><strong>Tri</strong> : cliquez sur l'en-tête d'une colonne.</li>
+      <li><strong>Raccourcis</strong> : Ctrl+S enregistrer, Ctrl+E exporter, Échap fermer.</li>
+    </ul>
+    <div style="display:flex;justify-content:flex-end;margin-top:var(--s-4)">
+      <button class="btn primary" id="closeHelp">Fermer</button>
+    </div>
+  </div>
+</div>
 
-                this.elements.commoditySelect.addEventListener('change', (e) => {
-                    this.selectCommodity(e.target.value);
-                });
-
-                this.elements.searchInput.addEventListener('input', this.debounce((e) => {
-                    this.handleSearch(e.target.value);
-                }, 300));
-
-                this.elements.saveRRM.addEventListener('click', () => this.saveProject());
-                this.elements.openRRM.addEventListener('change', (e) => {
-                    if (e.target.files[0]) this.loadProject(e.target.files[0]);
-                });
-            }
-
-            debounce(func, wait) {
-                let timeout;
-                return function(...args) {
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => func.apply(this, args), wait);
-                };
-            }
-
-            async fetchData(path) {
-                try {
-                    const response = await fetch(GITHUB_BASE_URL + path);
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    return await response.json();
-                } catch (error) {
-                    this.log(`Error loading ${path}: ${error.message}`, 'error');
-                    throw error;
-                }
-            }
-
-            async loadData() {
-                try {
-                    this.setLoading(true);
-                    this.log('Loading FDA RRM-FT data from GitHub...');
-
-                    const [twoA, oneA, hazardI18n, commodityI18n, categoryI18n] = await Promise.all([
-                        this.fetchData('commodities_table_2A.json'),
-                        this.fetchData('ftl_table_1A.json'),
-                        this.fetchData('i18n/hazard.json'),
-                        this.fetchData('i18n/commodity.json'),
-                        this.fetchData('i18n/category.json')
-                    ]);
-
-                    this.state.data.twoA = twoA.data || twoA;
-                    this.state.data.oneA = oneA.data || oneA;
-                    this.state.data.i18n.hazard = hazardI18n;
-                    this.state.data.i18n.commodity = commodityI18n;
-                    this.state.data.i18n.category = categoryI18n;
-
-                    this.updateDataStatus();
-                    this.populateCommoditySelect();
-                    this.log('Data loaded successfully from GitHub', 'success');
-
-                } catch (error) {
-                    this.log(`Critical error: ${error.message}`, 'error');
-                    this.setStatus('error', 'Error loading data');
-                } finally {
-                    this.setLoading(false);
-                }
-            }
-
-            setLoading(isLoading) {
-                const badge = this.elements.statusBadge;
-                badge.textContent = isLoading ? 'Loading...' : 'Ready';
-                badge.className = isLoading ? 'pill warn' : 'pill ok';
-            }
-
-            setStatus(type, message) {
-                this.elements.statusBadge.textContent = message;
-                this.elements.statusBadge.className = `pill ${type}`;
-            }
-
-            updateDataStatus() {
-                if (this.state.data.twoA && this.state.data.oneA) {
-                    const totalCommodities = this.state.data.twoA.length || Object.keys(this.state.data.twoA).length;
-                    this.elements.counts.textContent = `${totalCommodities} commodities`;
-                }
-            }
-
-            populateCommoditySelect() {
-                if (!this.state.data.twoA) return;
-
-                const select = this.elements.commoditySelect;
-                select.innerHTML = '<option value="">Select a commodity...</option>';
-
-                const commodities = (Array.isArray(this.state.data.twoA) ? this.state.data.twoA : Object.values(this.state.data.twoA))
-                    .map(item => ({
-                        code: item.code,
-                        name: this.state.data.i18n.commodity[item.code]?.[this.state.lang] || item.commodity || item.name
-                    }))
-                    .sort((a, b) => a.name.localeCompare(b.name));
-
-                commodities.forEach(item => {
-                    const option = document.createElement('option');
-                    option.value = item.code;
-                    option.textContent = `${item.name} (${item.code})`;
-                    select.appendChild(option);
-                });
-            }
-
-            setLanguage(lang) {
-                this.state.lang = lang;
-                this.populateCommoditySelect();
-                if (this.state.current.commodity) {
-                    this.selectCommodity(this.state.current.commodity);
-                }
-            }
-
-            async selectCommodity(code) {
-                if (!code) return;
-
-                this.state.current.commodity = code;
-                const commodity = this.state.data.twoA.find ? 
-                    this.state.data.twoA.find(c => c.code === code) : 
-                    this.state.data.twoA[code];
-
-                if (!commodity) return;
-
-                // Update UI
-                const isFTL = this.state.data.oneA.find ? 
-                    this.state.data.oneA.find(c => c.code === code)?.ftl : 
-                    this.state.data.oneA[code]?.ftl;
-
-                this.elements.ftlBadge.style.display = isFTL ? 'inline-block' : 'none';
-                
-                const catName = this.state.data.i18n.category[commodity.category]?.[this.state.lang] || 
-                               commodity.category;
-                this.elements.catName.textContent = catName;
-
-                await this.loadPairs(code);
-            }
-
-            async loadPairs(code) {
-                try {
-                    const pairs = await this.fetchData(`pairs_table_2B/${code}.json`);
-                    this.state.current.pairs = pairs;
-                    this.displayPairs(pairs);
-                    
-                    const maxScore = Math.max(...Object.values(pairs).map(p => p.score || 0));
-                    this.elements.aggScore.textContent = `Max score: ${maxScore}`;
-                    
-                } catch (error) {
-                    this.log(`Error loading pairs: ${error.message}`, 'error');
-                    this.displayPairs({});
-                }
-            }
-
-            displayPairs(pairs) {
-                const tbody = this.elements.pairsTable.querySelector('tbody');
-                tbody.innerHTML = '';
-
-                if (!pairs || Object.keys(pairs).length === 0) {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = '<td colspan="9" style="text-align: center; padding: 32px;">No data available</td>';
-                    tbody.appendChild(tr);
-                    return;
-                }
-
-                Object.entries(pairs)
-                    .sort(([, a], [, b]) => (b.score || 0) - (a.score || 0))
-                    .forEach(([hazard, data]) => {
-                        const tr = document.createElement('tr');
-                        const hazardName = this.state.data.i18n.hazard[hazard]?.[this.state.lang] || hazard;
-                        
-                        tr.innerHTML = `
-                            <th>${hazardName}</th>
-                            <td>${data.c1 || 0}</td>
-                            <td>${data.c2 || 0}</td>
-                            <td>${data.c3 || 0}</td>
-                            <td>${data.c4 || 0}</td>
-                            <td>${data.c5 || 0}</td>
-                            <td>${data.c6 || 0}</td>
-                            <td>${data.c7 || 0}</td>
-                            <td><strong>${data.score || 0}</strong></td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-            }
-
-            handleSearch(query) {
-                if (!query) return;
-
-                const select = this.elements.commoditySelect;
-                const options = Array.from(select.options);
-                const lowercaseQuery = query.toLowerCase();
-
-                const match = options.find(opt => 
-                    opt.text.toLowerCase().includes(lowercaseQuery) ||
-                    opt.value.toLowerCase().includes(lowercaseQuery)
-                );
-
-                if (match && match.value) {
-                    select.value = match.value;
-                    this.selectCommodity(match.value);
-                }
-            }
-
-            async saveProject() {
-                try {
-                    const name = this.elements.projName.value.trim();
-                    const ref = this.elements.projRef.value.trim();
-                    const notes = this.elements.projNotes.value.trim();
-                    
-                    if (!this.state.current.commodity) {
-                        alert('Please select a commodity first');
-                        return;
-                    }
-
-                    const project = {
-                        metadata: {
-                            name: name || 'Untitled',
-                            reference: ref || '',
-                            notes: notes || '',
-                            created: new Date().toISOString(),
-                            version: '1.0'
-                        },
-                        analysis: {
-                            commodity: this.state.current.commodity,
-                            pairs: this.state.current.pairs
-                        }
-                    };
-
-                    const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
-                    const filename = `rrmft_${name || 'project'}_${new Date().toISOString().split('T')[0]}.rrm`;
-
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = filename;
-                    a.click();
-                    URL.revokeObjectURL(url);
-
-                    this.log(`Project saved: ${filename}`, 'success');
-                } catch (error) {
-                    this.log(`Error saving project: ${error.message}`, 'error');
-                }
-            }
-
-            async loadProject(file) {
-                try {
-                    const text = await file.text();
-                    const project = JSON.parse(text);
-                    
-                    this.elements.projName.value = project.metadata.name || '';
-                    this.elements.projRef.value = project.metadata.reference || '';
-                    this.elements.projNotes.value = project.metadata.notes || '';
-                    
-                    if (project.analysis.commodity) {
-                        this.selectCommodity(project.analysis.commodity);
-                    }
-
-                    this.log(`Project loaded: ${file.name}`, 'success');
-                } catch (error) {
-                    this.log(`Error loading project: ${error.message}`, 'error');
-                }
-            }
-
-            log(message, type = 'info') {
-                const timestamp = new Date().toLocaleTimeString();
-                this.elements.log.textContent += `[${timestamp}] ${message}\n`;
-                this.elements.log.scrollTop = this.elements.log.scrollHeight;
-            }
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            new RRMFTApp();
-        });
-    </script>
+<script src="js/app.js" defer></script>
 </body>
-
 </html>
-
