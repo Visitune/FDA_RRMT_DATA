@@ -567,7 +567,13 @@ function bindEvents(){
     if(!state.current.code) return;
     try { localStorage.setItem("rrm-notes-"+state.current.code, e.target.value); } catch(err){}
   });
-  $("#demoBtn").addEventListener("click", ()=>selectCommodity("Tomatoes"));
+  $("#toggleAdvanced").addEventListener("click", ()=>{
+    const show = $("#globalCard").style.display==="none";
+    $("#globalCard").style.display = show?"block":"none";
+    $("#radarCard").style.display = show?"block":"none";
+    $("#toggleAdvanced").textContent = show?"🔧 Masquer les outils avancés":"🔧 Afficher les outils avancés (radar, recherche globale)";
+    if(show){ renderGlobal(); renderRadar(); }
+  });
   $("#globalQ").addEventListener("input", ()=>renderGlobal());
   document.addEventListener("keydown", e=>{
     if(e.key==="Escape"){ $("#modalHelp").classList.remove("open"); $("#modalGuide").classList.remove("open"); $("#sidebar").classList.remove("open"); $("#panel").classList.remove("open"); }

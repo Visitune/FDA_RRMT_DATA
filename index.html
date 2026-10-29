@@ -114,8 +114,8 @@
           <thead>
             <tr>
               <th data-key="hazard">Danger <span class="sort-ind"></span></th>
-              <th data-key="severity">Sévérité</th>
-              <th data-key="contam">Fréq. contam.</th>
+              <th data-key="severity">Gravité</th>
+              <th data-key="contam">Fréquence</th>
               <th data-key="risk_score">Score <span class="sort-ind"></span></th>
               <th>Niveau</th>
             </tr>
@@ -134,8 +134,13 @@
       <div class="chart"><canvas id="chart"></canvas></div>
     </section>
 
+    <!-- Advanced tools toggle -->
+    <div style="text-align:center;margin:var(--s-2) 0">
+      <button class="btn ghost" id="toggleAdvanced" style="font-size:var(--t-sm)">🔧 Afficher les outils avancés (radar, recherche globale)</button>
+    </div>
+
     <!-- Global hazard search -->
-    <section class="card" id="globalCard">
+    <section class="card" id="globalCard" style="display:none">
       <div class="section-title">
         <span>Recherche globale dans les dangers</span>
         <span class="sub" id="globalCount">—</span>
@@ -150,7 +155,7 @@
     </section>
 
     <!-- Radar factors -->
-    <section class="card" id="radarCard">
+    <section class="card" id="radarCard" style="display:none">
       <div class="section-title">
         <span>Facteurs de risque (Table 2A)</span>
         <span class="sub" id="radarSub">—</span>
